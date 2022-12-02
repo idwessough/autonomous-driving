@@ -19,3 +19,4 @@ https://github.com/P1NHE4D/limo_ros2_humble
 Package a installer en plus:
 - joint-state-publisher-gui
 - Gazebo-ros
+- xacro
