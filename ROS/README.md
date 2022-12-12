@@ -37,6 +37,16 @@ On voit que sur le mode simu, on a aucune connexion avec le topic /cmd_vel
 En gros, rien n'es li avec /cmd_vel, du coup la teleop ne fonctionne pas. Il y a tout un pan de code a realiser via le package limo_base pour gerer la teleop et piloter le limo en simulation>
 
 
-Correction sur fichier gazebo urdf. a etudier plus longuement.
+Correction sur fichier gazebo urdf. a etudier plus longuement. (probable probleme de ros2 et compatibilite limo)
 
 Choix de passer en physique, on reviendra sur la simu plus tard si le temps le permet.
+
+test en ros1 (melodic) concluant. possibilite de mapping, navigation et teleop.
+
+lien pour installer ros2 eloquent sur limo:
+
+https://github.com/agilexrobotics/limo_ros2/tree/humble/docs
+
+lien doc:
+
+https://github.com/agilexrobotics/limo-doc/blob/master/Limo%20user%20manual(EN).md
