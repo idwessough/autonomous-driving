@@ -1,0 +1,6 @@
+train/labels*.txt
+test/labels/*.txt
+valid/labels*.txt
+train/images/*.jpg
+test/images/*.jpg
+valid/images/*.jpg
