@@ -1,4 +1,4 @@
-train/labels*.txt
+train/labels/*.txt
 test/labels/*.txt
 valid/labels*.txt
 train/images/*.jpg
