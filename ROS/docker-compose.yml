@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  ros-melodic:
+    tty: true
+    image: "ros:melodic-robot"
+    ports:
+      - "80:80"
+    volumes: 
+      - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS:/home
