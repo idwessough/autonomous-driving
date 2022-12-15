@@ -16,4 +16,4 @@ file_list = os.listdir()
 listing = [os.path.join(actual_path, str(file)) for file in file_list] 
 print(listing) 
 final_df = pd.DataFrame(listing) 
-print(final_df)#final_df.to_csv("files_which_ends_with_jpeg.csv", index=False)
+final_df.to_csv("files_which_ends_with_jpeg.csv", index=False) 
