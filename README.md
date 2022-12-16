@@ -18,7 +18,31 @@ Faire naviguer des véhicules (Turtlebot + [Limo](https://global.agilex.ai/produ
         3. [ ] Stack navigation
         
 
+# Demo avec camera pc
 
+./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights
+
+# Demo avec camera limo
+
+
+
+## On Limo:
+- lancer roscore
+- Lancer LIDAR
+roslaunch limo_bringup limo_start.launch pub_odom_tf:=false
+- Lancer caméra
+roslaunch astra_camera dabai_u3.launch
+- lancer nav (après avoir mapper l'environnement)
+roslaunch limo_bringup limo_navigation_ackerman.launch
+
+Lancer ROSCore de Limo
+rosrun web_video_server web_video_server
+
+topic
+/camera/rgb/image_raw
+modifier CUDA version dans MakeFile 
+NVCC=/usr/local/cuda-11.8/bin/nvcc
+./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights http://localhost:8080/stream?topic=/camera/rgb/image_raw
 
 
 
@@ -103,3 +127,4 @@ sequenceDiagram
 - a
 - b
 - n
+
