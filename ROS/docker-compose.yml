@@ -1,9 +1,11 @@
-version: "3.9"
+version: "3"
 services:
   ros-melodic:
+    network_mode: "host"
     tty: true
-    image: "ros:melodic-robot"
-    ports:
-      - "80:80"
+    build: .
+    environment:
+      - "ROS_MASTER_URI=http://192.168.1.193:11311"
+      #- "ROS_HOSTNAME=192.168.0.2"
     volumes: 
-      - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS:/home
+      - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS/ROS1_ws:/home/ROS1_ws
