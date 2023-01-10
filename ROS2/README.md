@@ -52,3 +52,10 @@ lien doc:
 https://github.com/agilexrobotics/limo-doc/blob/master/Limo%20user%20manual(EN).md
 
 passage sous ros1 pour sprint 1, ros2 pour sprint 2.
+
+
+
+SPRINT 2:
+
+https://husarion.com/tutorials/ros2-tutorials/rosbot-ros2-demo-docker/
+https://github.com/NVIDIA/nvidia-docker

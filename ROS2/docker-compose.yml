@@ -1,0 +1,15 @@
+version: "3"
+services:
+  ros-foxy:
+    restart: unless-stopped
+    network_mode: "host"
+    ipc: host
+    tty: true
+    build: .
+    volumes: 
+      - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS2:/home/ROS2_ws
+    environment:
+      - ROS_DOMAIN_ID=228
+      - DISPLAY=$DISPLAY
+    #command: colcon build
+      
