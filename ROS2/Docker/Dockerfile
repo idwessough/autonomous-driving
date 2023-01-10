@@ -46,7 +46,6 @@ RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/^#X11Forwarding\s+.*/X11Forwarding yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/^#X11UseLocalhost\s+.*/X11UseLocalhost no/g' /etc/ssh/sshd_config
 
-EXPOSE 2222
 CMD ["/usr/sbin/sshd", "-D"]
 
 RUN echo "source /opt/ros/foxy/setup.bash" >> /etc/bash.bashrc
