@@ -2,7 +2,7 @@ FROM osrf/ros:foxy-desktop
 
 ENV VNC_PORT=5901 \
     VNC_RESOLUTION=1024x640 \
-    DISPLAY=:2 \
+    DISPLAY=:1 \
     TERM=xterm \
     DEBIAN_FRONTEND=noninteractive \
     HOME=/home/user \
