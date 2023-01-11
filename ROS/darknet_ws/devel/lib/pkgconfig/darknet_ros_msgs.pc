@@ -1,0 +1,8 @@
+prefix=/home/triton_01/Documents/projet_iD/S1_G1_Saunier_Sough_Abouchi/ROS/darknet_ws/devel
+
+Name: darknet_ros_msgs
+Description: Description of darknet_ros_msgs
+Version: 1.1.5
+Cflags: -I/home/triton_01/Documents/projet_iD/S1_G1_Saunier_Sough_Abouchi/ROS/darknet_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: actionlib_msgs geometry_msgs sensor_msgs message_runtime std_msgs
