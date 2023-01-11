@@ -10,9 +10,9 @@ services:
       network: host
     container_name: ros-foxy
     environment:
-      ROS_DOMAIN_ID: '228'
-      PASSWORD: 'password'
-      VNC_RESOLUTION: '1440x900'
+      - ROS_DOMAIN_ID=228
+      - PASSWORD=password
+      - VNC_RESOLUTION=1440x900
     volumes: 
       - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS2:/home/user/ROS2_ws
     command: tail -F anything

@@ -8,10 +8,7 @@ ENV VNC_PORT=5901 \
     HOME=/home/user \
     PATH=/opt/TurboVNC/bin:$PATH \
     SSH_PORT=22 \
-    ROS_WS=/home/user/ROS2_ws
-
-EXPOSE $VNC_PORT
-EXPOSE $SSH_PORT
+    ROS_WS=/home/user/ROS2_ws 
 
 # Install shared utils
 RUN apt-get update
@@ -55,6 +52,14 @@ RUN apt-get install -y --no-install-recommends \
         xterm
 ENV TVNC_WM=xfce4-session
 
+# Install extra ros2 packages
+RUN apt-get install -y --no-install-recommends \
+        ros-foxy-cartographer \
+        ros-foxy-rmw-fastrtps* \
+        ros-foxy-navigation2 \
+        ros-foxy-nav2-bringup \
+        ros-foxy-nav2-amcl 
+
 # Install TurboVNC
 ENV TVNC_VERSION=2.2.2
 RUN export TVNC_DOWNLOAD_FILE="turbovnc_${TVNC_VERSION}_amd64.deb" && \
@@ -83,7 +88,8 @@ RUN touch ~/.Xauthority && \
 # Copy in the init script
 COPY start.sh /startup/start.sh
 RUN sudo chmod +x /startup/start.sh
-RUN echo "source /opt/ros/foxy/setup.bash" >> bash.bashrc
+RUN echo "export ROS_DOMAIN_ID=228" >> ~/.bashrc
+RUN echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc
 
 ENTRYPOINT [ "/startup/start.sh" ]
 CMD [ "--wait" ]
