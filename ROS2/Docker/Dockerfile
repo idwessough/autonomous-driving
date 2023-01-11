@@ -1,12 +1,11 @@
 FROM osrf/ros:foxy-desktop
-# set enviroment    
 
 ENV VNC_PORT=5901 \
     VNC_RESOLUTION=1024x640 \
-    DISPLAY=:1 \
+    DISPLAY=:2 \
     TERM=xterm \
-    HOME=/home/user \
     DEBIAN_FRONTEND=noninteractive \
+    HOME=/home/user \
     PATH=/opt/TurboVNC/bin:$PATH \
     SSH_PORT=22 \
     ROS_WS=/home/user/ROS2_ws
@@ -14,83 +13,77 @@ ENV VNC_PORT=5901 \
 EXPOSE $VNC_PORT
 EXPOSE $SSH_PORT
 
-RUN mkdir -p $ROS_WS/src
+# Install shared utils
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+        apt-utils \
+        ca-certificates \
+        locales \
+        net-tools \
+        sudo \
+        supervisor \
+        wget \
+        openssh-server \
+        build-essential \
+        cmake \
+        git \
+        libssl-dev \
+        libusb-1.0-0-dev \
+        pkg-config \
+        libgtk-3-dev \
+        libglfw3-dev \
+        libgl1-mesa-dev \
+        libglu1-mesa-dev \    
+        curl \	
+        libusb-1.0-0 \
+        udev \
+        apt-transport-https \
+        curl \
+        swig \
+        software-properties-common \
+        python3-pip 
 
-# install ros dependencies packages
-RUN apt-get update \
-    && apt-get install -qq -y --no-install-recommends \
-    build-essential \
-    cmake \
-    git \
-    libssl-dev \
-    libusb-1.0-0-dev \
-    pkg-config \
-    libgtk-3-dev \
-    libglfw3-dev \
-    libgl1-mesa-dev \
-    libglu1-mesa-dev \    
-    curl \	
-    libusb-1.0-0 \
-    udev \
-    apt-transport-https \
-    locales \
-    ca-certificates \
-    curl \
-    swig \
-    sudo \
-    supervisor \
-    wget \
-    software-properties-common \
-    python3-pip \
-    dbus-x11 \
-    libexo-1-0 \
-    x11-apps \
-    x11-xserver-utils \
-    xauth \
-    xfce4 \
-    xfce4-terminal \
-    xterm \
-    net-tools \
-    openssh-server \
-    && rm -rf /var/lib/apt/lists/*
-
+# Install XFCE and terminal
+RUN apt-get install -y --no-install-recommends \
+        dbus-x11 \
+        libexo-1-0 \
+        x11-apps \
+        x11-xserver-utils \
+        xauth \
+        xfce4 \
+        xfce4-terminal \
+        xterm
 ENV TVNC_WM=xfce4-session
 
+# Install TurboVNC
 ENV TVNC_VERSION=2.2.2
 RUN export TVNC_DOWNLOAD_FILE="turbovnc_${TVNC_VERSION}_amd64.deb" && \
     wget -q -O $TVNC_DOWNLOAD_FILE "https://sourceforge.net/projects/turbovnc/files/2.2.2/${TVNC_DOWNLOAD_FILE}/download" && \
     dpkg -i $TVNC_DOWNLOAD_FILE && \
     rm -f $TVNC_DOWNLOAD_FILE
 
+# Configure SSH server
 RUN mkdir -p /var/run/sshd
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/^#AllowTcpForwarding\s+.*/AllowTcpForwarding yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/^#X11Forwarding\s+.*/X11Forwarding yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/^#X11UseLocalhost\s+.*/X11UseLocalhost no/g' /etc/ssh/sshd_config
 
+# Setup another user
 RUN useradd -ms /bin/bash user && \
     adduser user sudo && \
-    usermod -aG sudo user && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-#USER user
+USER user
 WORKDIR $ROS_WS
 
-RUN sudo touch ~/.Xauthority && \
-    sudo mkdir ~/.vnc
+# Configure X server
+RUN touch ~/.Xauthority && \
+    mkdir ~/.vnc
 
+# Copy in the init script
 COPY start.sh /startup/start.sh
 RUN sudo chmod +x /startup/start.sh
-RUN echo "source /opt/ros/foxy/setup.bash" >> /etc/bash.bashrc
+RUN echo "source /opt/ros/foxy/setup.bash" >> bash.bashrc
 
 ENTRYPOINT [ "/startup/start.sh" ]
 CMD [ "--wait" ]
-
-
-
-#RUN . "/opt/ros/$ROS_DISTRO/setup.sh" && cd $ROS_WS && catkin_make \
-#    && sed --in-place --expression \ 
-#    '$isource "$ROS_WS/devel/setup.bash"' \
-#    /ros_entrypoint.sh
-
-# run ros package launch file
-#CMD [ "roslaunch", "<your package>", "<your launch file>" ]
