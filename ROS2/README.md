@@ -55,7 +55,12 @@ passage sous ros1 pour sprint 1, ros2 pour sprint 2.
 
 
 
-SPRINT 2:
+# SPRINT 2:
 
 https://husarion.com/tutorials/ros2-tutorials/rosbot-ros2-demo-docker/
 https://github.com/NVIDIA/nvidia-docker
+
+## Docker:
+X11 docker blog pour construire le docker sur PC ([lien](https://jaydenm.com/blog/docker-x11-desktop/))
+
+Atttention sur ros2, bien mettre ROS_DOMAIN_ID=228 avec le meme ID sur tout les conteneur

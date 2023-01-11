@@ -5,11 +5,17 @@ services:
     network_mode: "host"
     ipc: host
     tty: true
-    build: .
+    build:
+      context: .
+      network: host
     volumes: 
       - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS2:/home/ROS2_ws
     environment:
       - ROS_DOMAIN_ID=228
-      - DISPLAY=$DISPLAY
-    #command: colcon build
+      - PASSWORD= 'password'
+      #- VNC_RESOLUTION= '1440x900'
+    ports:
+      - "2222:22"
+      - "5901:5901"
+    command: tail -F anything
       
