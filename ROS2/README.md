@@ -1,10 +1,10 @@
 # Commande utiles pour ROS et ROS 2
 
 Pour sourcer les commande ROS (a faire a chaque nouveau shell)
-> source /opt/ros/humble/setup.bash
+> source /opt/ros/foxy/setup.bash
 
 ROS domain ID choisi sur PC:
->42
+>228
 
 Bien installer colcon pour build les packages:
 >sudo apt install python3-colcon-common-extensions
@@ -14,7 +14,7 @@ sourcer ROS2 install apres build:
 
 ou
 
->source /opt/ros/humble/setup.bash
+>source /opt/ros/foxy/setup.bash
 
 
 Lien git du repo fonctionnant sur ROS2 humble
@@ -64,3 +64,15 @@ https://github.com/NVIDIA/nvidia-docker
 X11 docker blog pour construire le docker sur PC ([lien](https://jaydenm.com/blog/docker-x11-desktop/))
 
 Atttention sur ros2, bien mettre ROS_DOMAIN_ID=228 avec le meme ID sur tout les conteneur
+
+
+### Connection docker ros2:
+
+Lancer docker compose:
+>docker compose up
+
+Dans un autre terminal:
+>ssh -Y user@localhost
+
+mdp:
+>password
