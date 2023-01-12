@@ -93,6 +93,8 @@ RUN touch ~/.Xauthority && \
 COPY start.sh /startup/start.sh
 RUN sudo chmod +x /startup/start.sh
 RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+RUN echo "export ROS_MASTER_URI=http://192.168.1.193:11311" >> ~/.bashrc
+RUN echo "export ROS_HOSTNAME=192.168.1.145" >> ~/.bashrc
 
 ENTRYPOINT [ "/startup/start.sh" ]
 CMD [ "--wait" ]
