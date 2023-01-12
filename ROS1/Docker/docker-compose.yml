@@ -15,5 +15,5 @@ services:
       - PASSWORD=password
       - VNC_RESOLUTION=1440x900
     volumes: 
-      - ~/Documents/ProjetS9/ProjetS1_G1_Saunier_Sough_Abouchi/ROS/ROS1_ws:/home/ROS1_wss
+      - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS1/ROS1_ws:/home/user/ROS1_ws
     command: tail -F anything

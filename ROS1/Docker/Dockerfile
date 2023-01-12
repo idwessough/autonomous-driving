@@ -82,7 +82,7 @@ RUN useradd -ms /bin/bash user && \
     adduser user sudo && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER user
-RUN mkdir -p $ROS_WS/src
+RUN mkdir -p $ROS_WS
 WORKDIR $ROS_WS
 
 # Configure X server
