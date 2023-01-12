@@ -11,7 +11,7 @@ services:
     container_name: ros-melodic
     environment:
       - "ROS_MASTER_URI=http://192.168.1.193:11311"
-      #- "ROS_HOSTNAME=192.168.0.2"
+      - "ROS_HOSTNAME=192.168.1.145"
       - PASSWORD=password
       - VNC_RESOLUTION=1440x900
     volumes: 
