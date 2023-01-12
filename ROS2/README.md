@@ -68,6 +68,13 @@ Atttention sur ros2, bien mettre ROS_DOMAIN_ID=228 avec le meme ID sur tout les 
 
 ### Connection docker ros2:
 
+*Modifier docker compose pour changer le volume (mettre un dir qui convient au PC utilise)*
+
+*Modifier les var d'ENV ROS_DOMAIN_ID pour correspondre avec votre systeme/robot*
+
+build image docker:
+>docker compose build
+
 Lancer docker compose:
 >docker compose up
 
