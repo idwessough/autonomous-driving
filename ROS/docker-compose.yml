@@ -1,11 +1,19 @@
 version: "3"
 services:
   ros-melodic:
+    restart: unless-stopped
     network_mode: "host"
     tty: true
-    build: .
+    ipc: host
+    build: 
+      context: .
+      network: host
+    container_name: ros-melodic
     environment:
       - "ROS_MASTER_URI=http://192.168.1.193:11311"
       #- "ROS_HOSTNAME=192.168.0.2"
+      - PASSWORD=password
+      - VNC_RESOLUTION=1440x900
     volumes: 
-      - ~/Documents/ProjetS9/S1_G1_Saunier_Sough_Abouchi/ROS/ROS1_ws:/home/ROS1_ws
+      - ~/Documents/ProjetS9/ProjetS1_G1_Saunier_Sough_Abouchi/ROS/ROS1_ws:/home/ROS1_wss
+    command: tail -F anything
