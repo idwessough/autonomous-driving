@@ -76,3 +76,7 @@ Dans un autre terminal:
 
 mdp:
 >password
+
+nav 2 : https://navigation.ros.org/index.html
+
+tuto ros2: https://industrial-training-master.readthedocs.io/en/foxy/_source/session1/ros2/2-Installing-Existing-Packages.html

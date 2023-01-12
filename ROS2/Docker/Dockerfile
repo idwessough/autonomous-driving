@@ -58,7 +58,10 @@ RUN apt-get install -y --no-install-recommends \
         ros-foxy-rmw-fastrtps* \
         ros-foxy-navigation2 \
         ros-foxy-nav2-bringup \
-        ros-foxy-nav2-amcl 
+        ros-foxy-nav2-amcl \
+        ros-foxy-joint-state-publisher-gui \
+        ros-foxy-gazebo-ros-pkgs \
+        ros-foxy-xacro
 
 # Install TurboVNC
 ENV TVNC_VERSION=2.2.2
