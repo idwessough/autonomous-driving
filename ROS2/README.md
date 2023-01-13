@@ -1,10 +1,10 @@
 # Commande utiles pour ROS et ROS 2
 
 Pour sourcer les commande ROS (a faire a chaque nouveau shell)
-> source /opt/ros/humble/setup.bash
+> source /opt/ros/foxy/setup.bash
 
 ROS domain ID choisi sur PC:
->42
+>228
 
 Bien installer colcon pour build les packages:
 >sudo apt install python3-colcon-common-extensions
@@ -14,7 +14,7 @@ sourcer ROS2 install apres build:
 
 ou
 
->source /opt/ros/humble/setup.bash
+>source /opt/ros/foxy/setup.bash
 
 
 Lien git du repo fonctionnant sur ROS2 humble
@@ -52,3 +52,42 @@ lien doc:
 https://github.com/agilexrobotics/limo-doc/blob/master/Limo%20user%20manual(EN).md
 
 passage sous ros1 pour sprint 1, ros2 pour sprint 2.
+
+
+
+# SPRINT 2:
+
+https://husarion.com/tutorials/ros2-tutorials/rosbot-ros2-demo-docker/
+https://github.com/NVIDIA/nvidia-docker
+
+## Docker:
+X11 docker blog pour construire le docker sur PC ([lien](https://jaydenm.com/blog/docker-x11-desktop/))
+
+Atttention sur ros2, bien mettre ROS_DOMAIN_ID=228 avec le meme ID sur tout les conteneur
+
+
+### Connection docker ros2:
+
+*Modifier docker compose pour changer le volume (mettre un dir qui convient au PC utilise)*
+
+*Modifier les var d'ENV ROS_DOMAIN_ID pour correspondre avec votre systeme/robot*
+
+build image docker:
+>docker compose build
+
+Lancer docker compose:
+>docker compose up
+
+Dans un autre terminal:
+>ssh -Y user@localhost
+
+mdp:
+>password
+
+### resources supplementaire
+
+nav 2 : https://navigation.ros.org/index.html
+
+tuto ros2: 
+- https://industrial-training-master.readthedocs.io/en/foxy/_source/session1/ros2/2-Installing-Existing-Packages.html
+- https://docs.ros.org/en/foxy/Installation.html
