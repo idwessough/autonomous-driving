@@ -2,6 +2,7 @@
 
 import rospy
 import cv2
+import sys
 import traceback
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
@@ -16,7 +17,7 @@ class LineDetector:
         self.rate = rospy.Rate(rospy.get_param("/rate/lineDetector")) 
         self.image_sub_comp = rospy.Subscriber("/camera/rgb/image_rect_color/compressed", CompressedImage, self.image_callback_compressed)
         self.image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, self.image_callback_raw)
-        self.image_pub = rospy.Publisher("processed_image", Image)
+        self.image_pub = rospy.Publisher("processed_image", Image, queue_size=40)
         self.bridge = CvBridge()
         self.line_offset = 0
 
@@ -43,27 +44,41 @@ class LineDetector:
         cv_image = cv2.resize(cv_image, (256, 256), interpolation = cv2.INTER_AREA)
 
         # Change to grayscale and blur a bit
+        k_width = 5
+        k_height = 5
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-        cv_image = cv2.GaussianBlur(cv_image, (7, 7), 0)
+        cv_image = cv2.GaussianBlur(cv_image, (k_width, k_height), 0)
 
         # Threshold the image
-        (T, threshold_image) = cv2.threshold(cv_image, 180, 255, cv2.THRESH_BINARY)
+        (T, threshold_image) = cv2.threshold(cv_image, 210, 255, cv2.THRESH_BINARY)
+        #threshold_image = cv2.adaptiveThreshold(cv_image,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
 
         # Overlay black box on top of image
-        cv2.rectangle(threshold_image, (0, 0), (256, 128), (0,0,0), -1)
+        cv2.rectangle(threshold_image, (0, 0), (256, 150), (0,0,0), -1)
 
-        # Get center of the thresholded image
-        M = cv2.moments(threshold_image)
+        #detect line
+        threshold1 = 85
+        threshold2 = 85
+        threshold_image = cv2.Canny(threshold_image, threshold1, threshold2)
 
-        # calculate x,y coordinate of center
-        cX = 128
-        cY = 128
-        if M["m00"] != 0:
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
+        #line detection
+        minLineLength = 6
+        maxLineGap = 20
+        max_slider = 10 
+        lines = cv2.HoughLinesP(threshold_image,1,np.pi/180,max_slider,minLineLength,maxLineGap)
 
-        # Compute an offset in [-1, 1] coordinates to convert to steering
-        self.line_offset = (cX - 128.0) / 128.0
+        # # Get center of the thresholded image
+        # M = cv2.moments(threshold_image)
+
+        # # calculate x,y coordinate of center
+        # cX = 128
+        # cY = 128
+        # if M["m00"] != 0:
+        #     cX = int(M["m10"] / M["m00"])
+        #     cY = int(M["m01"] / M["m00"])
+
+        # # Compute an offset in [-1, 1] coordinates to convert to steering
+        # self.line_offset = (cX - 128.0) / 128.0
 
         # Change from grayscale
         threshold_image = cv2.cvtColor(threshold_image, cv2.COLOR_GRAY2RGB)
@@ -72,7 +87,12 @@ class LineDetector:
         cv2.rectangle(threshold_image, (0, 200), (256, 200), (255, 255, 255), -1)
         
         #Center of bottom section
-        threshold_image = cv2.circle(threshold_image, (cX, cY), 5, (0, 255, 0), -1)
+        #threshold_image = cv2.circle(threshold_image, (cX, cY), 5, (0, 255, 0), -1)
+
+        #visualize lines detected by hough tf
+        for x in range(0, len(lines)):
+            for x1,y1,x2,y2 in lines[x]:
+                cv2.line(threshold_image,(x1,y1),(x2,y2),(255,180,0),1)
 
         # The centerline of the image
         threshold_image = cv2.line(threshold_image,(128,0),(128,256),(0,0,255),1)
@@ -91,5 +111,14 @@ class LineDetector:
         while not rospy.is_shutdown():
             self.rate.sleep()
 
-if __name__ =='__main__':
+
+def main(args):
     rospy.init_node('line_detector')
+    line_detect = LineDetector()
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down")
+    
+if __name__ =='__main__':
+    main(sys.argv)
