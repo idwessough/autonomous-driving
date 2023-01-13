@@ -1,5 +1,0 @@
-    classes = 8
-    train = YOLOV3_YCB_tiny/train.txt
-    valid = YOLOV3_YCB_tiny/test.txt
-    names = YOLOV3_YCB_tiny/ycb.names
-    backup = backup
