@@ -5,6 +5,12 @@ auteurs : Idwes Sough, Arthur Saunier, Younes Abouchi
 ## Objectifs
 Faire naviguer des véhicules (Turtlebot + [Limo](https://global.agilex.ai/products/limo)) dans un environnement urbain (route, feu, piétons, signalisation, ...) en respectant sa réglementation (laisser) 
 
+##
+
+Informations pour tag vIntermediate:
+
+Informations de compilation et demo ds le dossier neural network.
+
 ## Listes des fonctionnalités :
 
 1. [ ] Un conteneur docker contenant :
@@ -18,7 +24,31 @@ Faire naviguer des véhicules (Turtlebot + [Limo](https://global.agilex.ai/produ
         3. [ ] Stack navigation
         
 
+# Demo avec camera pc
 
+./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights
+
+# Demo avec camera limo
+
+
+
+## On Limo:
+- lancer roscore
+- Lancer LIDAR
+roslaunch limo_bringup limo_start.launch pub_odom_tf:=false
+- Lancer caméra
+roslaunch astra_camera dabai_u3.launch
+- lancer nav (après avoir mapper l'environnement)
+roslaunch limo_bringup limo_navigation_ackerman.launch
+
+Lancer ROSCore de Limo
+rosrun web_video_server web_video_server
+
+topic
+/camera/rgb/image_raw
+modifier CUDA version dans MakeFile 
+NVCC=/usr/local/cuda-11.8/bin/nvcc
+./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights http://localhost:8080/stream?topic=/camera/rgb/image_raw
 
 
 
@@ -54,52 +84,3 @@ Le projet nécessite de maquetter une route, en collaboration avec le projet de 
 
 
 
-
-
-
-
-# Représentation des noeuds
-
-```mermaid
-graph LR
-    T1[Odometry source] -- /odom --> Node((local_planner_student))
-    T2[Laser source] -- /scan --> Node((local_planner_student))
-
-    S1[ ] -. /move_to/singleGoal .-> Node
-    S2[ ] -. /move_to/pathGoal .-> Node
-
-    Node -- /cmd_vel_mux/input/navi -->D[base controller]
-```
-
-# Description de l'algo
-
-```mermaid
-sequenceDiagram
-    participant Alice
-    participant Bob
-    Alice->John: Hello John, how are you?
-    loop Healthcheck
-        John->John: Fight against hypochondria
-    end
-    Note right of John: Rational thoughts <br/>prevail...
-    John-->Alice: Great!
-    John->Bob: How about you?
-    Bob-->John: Jolly good!
-```
-
-# Vidéos de présentation
-
-[Lien vers la vidéo pitch youtube](url)
-
-[Lien vers la vidéo tutoriel youtube](url)
-
-# Liste des dépendances et pré-requis
-
-- a
-- b
-
-# Procédure de mise en route
-
-- a
-- b
-- n
