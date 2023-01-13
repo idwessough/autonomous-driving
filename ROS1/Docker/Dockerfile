@@ -61,6 +61,7 @@ RUN apt-get install -y --no-install-recommends \
         ros-melodic-gazebo-ros-control \
         ros-melodic-teleop-twist-keyboard \
         ros-melodic-robot-pose-ekf \
+        ros-melodic-video-stream-opencv \
         && apt-get clean 
 
 # Install TurboVNC
