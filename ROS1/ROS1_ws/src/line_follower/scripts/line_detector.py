@@ -7,7 +7,6 @@ import traceback
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
-from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float32
 
 class LineDetector:
@@ -15,7 +14,6 @@ class LineDetector:
         print("Initializing line detector node")
         # read rate config
         self.rate = rospy.Rate(rospy.get_param("/rate/lineDetector")) 
-        self.image_sub_comp = rospy.Subscriber("/camera/rgb/image_rect_color/compressed", CompressedImage, self.image_callback_compressed)
         self.image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, self.image_callback_raw)
         self.image_pub = rospy.Publisher("processed_image", Image, queue_size=40)
         self.bridge = CvBridge()
@@ -30,81 +28,64 @@ class LineDetector:
             rospy.logerr(e)
             rospy.logerr("CvBridge Error, skipped image frame!")
 
-    def image_callback_compressed(self, msg):
-        try:
-            np_arr = np.fromstring(msg.data, np.uint8)
-            image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-            self.process_image(image_np)
-        except Exception as e:
-            rospy.logerr(e)
-            rospy.logerr("skipped processed image frame!")
-
     def process_image(self, cv_image):
         # Downscale to 256x256
         cv_image = cv2.resize(cv_image, (256, 256), interpolation = cv2.INTER_AREA)
 
-        # Change to grayscale and blur a bit
-        k_width = 5
-        k_height = 5
-        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-        cv_image = cv2.GaussianBlur(cv_image, (k_width, k_height), 0)
+        # Change color and blur a bit
+        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+        #cv_image = cv2.GaussianBlur(cv_image, (5, 5), 0)
+        
+        #white
+        low = np.array([ 0, 0, 240])
+        high = np.array([ 210, 30, 255])
 
-        # Threshold the image
-        (T, threshold_image) = cv2.threshold(cv_image, 210, 255, cv2.THRESH_BINARY)
-        #threshold_image = cv2.adaptiveThreshold(cv_image,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
+        mask = cv2.inRange(cv_image, low, high)
 
-        # Overlay black box on top of image
-        cv2.rectangle(threshold_image, (0, 0), (256, 150), (0,0,0), -1)
+        h, w, d = cv_image.shape
 
-        #detect line
-        threshold1 = 85
-        threshold2 = 85
-        threshold_image = cv2.Canny(threshold_image, threshold1, threshold2)
+        search_top = 150
+        search_bot = 256
+        search_left = 0
+        search_right = 256
+        mask[0:search_top, 0:w] = 0
+        mask[search_bot:h, 0:w] = 0
+        mask[0:h, 0:search_left] = 0
+        mask[0:h, search_right:w] = 0
 
-        #line detection
-        minLineLength = 6
-        maxLineGap = 20
-        max_slider = 10 
-        lines = cv2.HoughLinesP(threshold_image,1,np.pi/180,max_slider,minLineLength,maxLineGap)
+        #moment des lignes
+        M = cv2.moments(mask)
+        target = cv2.bitwise_and(cv_image, cv_image, mask = mask)
+        cx = 128
+        cy = 128
+        if M['m00'] != 0:
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
+            
+            err = cx - w/2
+            # self.Twist.linear.x = 0.1
+            # self.Twist.angular.z = -float(err) / 590
+            # self.cmd_vel_pub.publish(self.Twist)
 
-        # # Get center of the thresholded image
-        # M = cv2.moments(threshold_image)
+        # Get center of the image
+        M = cv2.moments(mask)
 
-        # # calculate x,y coordinate of center
-        # cX = 128
-        # cY = 128
-        # if M["m00"] != 0:
-        #     cX = int(M["m10"] / M["m00"])
-        #     cY = int(M["m01"] / M["m00"])
+        # calculate x,y coordinate of center
+        cX = 128
+        cY = 128
+        if M["m00"] != 0:
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
 
-        # # Compute an offset in [-1, 1] coordinates to convert to steering
-        # self.line_offset = (cX - 128.0) / 128.0
 
         # Change from grayscale
-        threshold_image = cv2.cvtColor(threshold_image, cv2.COLOR_GRAY2RGB)
+        target = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
 
-        # Overlay black box on top of image
-        cv2.rectangle(threshold_image, (0, 200), (256, 200), (255, 255, 255), -1)
-        
         #Center of bottom section
-        #threshold_image = cv2.circle(threshold_image, (cX, cY), 5, (0, 255, 0), -1)
-
-        #visualize lines detected by hough tf
-        for x in range(0, len(lines)):
-            for x1,y1,x2,y2 in lines[x]:
-                cv2.line(threshold_image,(x1,y1),(x2,y2),(255,180,0),1)
-
-        # The centerline of the image
-        threshold_image = cv2.line(threshold_image,(128,0),(128,256),(0,0,255),1)
-
-        # Bottom quadrant that is used to signal which direction to go
-        threshold_image = cv2.line(threshold_image,(0,200),(256,200),(0,0,255),1)
-
-        # visualize line offset
-        threshold_image = cv2.line(threshold_image,(int(128 + (self.line_offset * 128)),0),(int(128 + (self.line_offset * 128)),256),(255,0,255),1)
+        target = cv2.circle(target, (cX, cY), 5, (0, 255, 0), -1)
 
         # Output the processed message
-        image_message = self.bridge.cv2_to_imgmsg(threshold_image, "passthrough")
+        image_message = self.bridge.cv2_to_imgmsg(target, "passthrough")
         self.image_pub.publish(image_message)
 
     def run(self):
