@@ -8,6 +8,7 @@ import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32
+from geometry_msgs.msg import Twist
 
 class LineDetector:
     def __init__(self):
@@ -16,8 +17,13 @@ class LineDetector:
         self.rate = rospy.Rate(rospy.get_param("/rate/lineDetector")) 
         self.image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, self.image_callback_raw)
         self.image_pub = rospy.Publisher("processed_image", Image, queue_size=40)
+        self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         self.bridge = CvBridge()
         self.line_offset = 0
+        self.Twist = Twist()
+        self.perr = 0
+        self.ptime = 0
+        self.serr = 0
 
     def image_callback_raw(self, msg):
         try:
@@ -46,7 +52,7 @@ class LineDetector:
 
         search_top = 150
         search_bot = 256
-        search_left = 0
+        search_left = 128
         search_right = 256
         mask[0:search_top, 0:w] = 0
         mask[search_bot:h, 0:w] = 0
@@ -54,35 +60,35 @@ class LineDetector:
         mask[0:h, search_right:w] = 0
 
         #moment des lignes
-        M = cv2.moments(mask)
         target = cv2.bitwise_and(cv_image, cv_image, mask = mask)
-        cx = 128
-        cy = 128
-        if M['m00'] != 0:
-            cx = int(M['m10']/M['m00'])
-            cy = int(M['m01']/M['m00'])
-            
-            err = cx - w/2
-            # self.Twist.linear.x = 0.1
-            # self.Twist.angular.z = -float(err) / 590
-            # self.cmd_vel_pub.publish(self.Twist)
-
-        # Get center of the image
         M = cv2.moments(mask)
 
         # calculate x,y coordinate of center
         cX = 128
         cY = 128
+        cx = 0
         if M["m00"] != 0:
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
+            
+            cx = cX - 70 
+            if cX <= 2*h/8:
+                cx = cX +(h/2)
 
+            err = cx - w/2
+            self.Twist.linear.x = 0.15
+            self.Twist.angular.z = -float(err) / 400 #(-float(err) / 100)*2.5 + ((err - self.perr)/(rospy.get_time() - self.ptime))*1/50/100
+            self.serr = err + self.serr
+            self.perr = err
+            self.ptime = rospy.get_time()
+            self.cmd_vel_pub.publish(self.Twist)
 
         # Change from grayscale
         target = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
 
-        #Center of bottom section
+        #Center of line right
         target = cv2.circle(target, (cX, cY), 5, (0, 255, 0), -1)
+        target = cv2.circle(target, (cx, cY), 5, (0, 255, 0), -1)
 
         # Output the processed message
         image_message = self.bridge.cv2_to_imgmsg(target, "passthrough")
