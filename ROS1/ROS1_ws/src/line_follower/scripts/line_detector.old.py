@@ -4,7 +4,7 @@ import rospy
 import cv2
 import sys
 import traceback
-import numpy 
+import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32
@@ -21,6 +21,9 @@ class LineDetector:
         self.bridge = CvBridge()
         self.line_offset = 0
         self.Twist = Twist()
+        self.perr = 0
+        self.ptime = 0
+        self.serr = 0
 
     def image_callback_raw(self, msg):
         try:
@@ -32,74 +35,63 @@ class LineDetector:
             rospy.logerr("CvBridge Error, skipped image frame!")
 
     def process_image(self, cv_image):
-        global perr, ptime, serr, dt
-    
-        #transformation
-        img = cv2.resize(cv_image,None,fx=0.6, fy=0.6, interpolation = cv2.INTER_CUBIC)
-        #print img.shape
-        rows, cols, ch = img.shape
-        pts1 = numpy.float32([[90,122],[313,122],[35,242],[385,242]])
-        pts2 = numpy.float32([[0,0],[400,0],[0,400],[400,400]])
-        M = cv2.getPerspectiveTransform(pts1,pts2)
-        img_size = (img.shape[1], img.shape[0])
-        image = cv2.warpPerspective(img,M,(img_size[0]+100,img_size[1]+100))#img_size
+        # Downscale to 256x256
+        cv_image = cv2.resize(cv_image, (256, 256), interpolation = cv2.INTER_AREA)
+
+        # Change color and blur a bit
+        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+        #cv_image = cv2.GaussianBlur(cv_image, (5, 5), 0)
         
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        lower_yellow = numpy.array([ 10,  10,  10])
-        upper_yellow = numpy.array([255, 255, 250])
+        #white
+        low = np.array([ 0, 0, 240])
+        high = np.array([ 210, 30, 255])
 
-        lower_white = numpy.array([100,100,200], dtype= "uint8")
-        upper_white = numpy.array([255,255,255], dtype= "uint8")
+        mask = cv2.inRange(cv_image, low, high)
 
-        #threshold to get only white
-        maskw = cv2.inRange(image, lower_white, upper_white)
-        masky = cv2.inRange(hsv, lower_yellow, upper_yellow)
-        #remove pixels not in this range
-        mask_yw = cv2.bitwise_or(maskw, masky)    
-        rgb_yw = cv2.bitwise_and(image, image, mask = mask_yw).astype(numpy.uint8)
+        h, w, d = cv_image.shape
 
-        rgb_yw = cv2.cvtColor(rgb_yw, cv2.COLOR_RGB2GRAY)
-    
-        #filter mask
-        kernel = numpy.ones((7,7), numpy.uint8)
-        opening = cv2.morphologyEx(rgb_yw, cv2.MORPH_OPEN, kernel)
-        rgb_yw2 = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)		
-        
-        h, w= rgb_yw2.shape
-        search_top = 7*h/8+20
-        search_bot = 7*h/8 + 800 +20
-        rgb_yw2[0:search_top, 0:w] = 0
-        rgb_yw2[search_bot:h, 0:w] = 0
-        M = cv2.moments(rgb_yw2)
+        search_top = 150
+        search_bot = 256
+        search_left = 0
+        search_right = 256
+        mask[0:search_top, 0:w] = 0
+        mask[search_bot:h, 0:w] = 0
+        mask[0:h, 0:search_left] = 0
+        mask[0:h, search_right:w] = 0
+
+        #moment des lignes
+        target = cv2.bitwise_and(cv_image, cv_image, mask = mask)
+        M = cv2.moments(mask)
 
         # calculate x,y coordinate of center
         cX = 128
         cY = 128
+        cx = 0
         if M["m00"] != 0:
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
-
-            cx = cX - 110 
+            
+            cx = cX - 70 
             if cX <= 2*h/8:
                 cx = cX +(h/2)
-            
-            err = cx - w/2
-            self.Twist.linear.x = 0.1
-            self.Twist.angular.z =  (-float(err) / 100)*2.5 + ((err - perr)/(rospy.get_time() - ptime))*1/50/100
-            serr = err + serr
-            perr = err
-            ptime = rospy.get_time()
+
+            err = cx - w/4
+            self.Twist.linear.x = 0.15
+            self.Twist.angular.z = -float(err) / 500 #(-float(err) / 500)*2.5 + ((err - self.perr)/(rospy.get_time() - self.ptime))*1/50/100 
+            self.serr = err + self.serr
+            self.perr = err
+            self.ptime = rospy.get_time()
             self.cmd_vel_pub.publish(self.Twist)
 
         # Change from grayscale
-        #rgb_yw2 = cv2.cvtColor(rgb_yw2, cv2.COLOR_BGR2HSV)
+        target = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
 
-        #Center of bottom section
-        rgb_yw2 = cv2.circle(rgb_yw2, (cX, cY), 5, (255, 255, 0), -1)
-        rgb_yw2 = cv2.circle(rgb_yw2, (cx, cY), 5, (255,255,0),-1)
+        #Center of line right
+        target = cv2.circle(target, (cX, cY), 5, (0, 255, 0), -1)
+        target = cv2.circle(target, (cx, cY), 5, (0, 255, 0), -1)
 
         # Output the processed message
-        image_message = self.bridge.cv2_to_imgmsg(rgb_yw2, "passthrough")
+        image_message = self.bridge.cv2_to_imgmsg(target, "passthrough")
         self.image_pub.publish(image_message)
 
     def run(self):
