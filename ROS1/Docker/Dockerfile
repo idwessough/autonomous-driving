@@ -38,7 +38,9 @@ RUN apt-get install -y --no-install-recommends \
         curl \
         swig \
         software-properties-common \
-        python3-pip 
+        python3-pip \
+        python-matplotlib \
+        python-tk
 
 # Install XFCE and terminal
 RUN apt-get install -y --no-install-recommends \
