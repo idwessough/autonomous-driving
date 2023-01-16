@@ -77,7 +77,7 @@ class LineDetector:
 
             err = cx - w/2
             self.Twist.linear.x = 0.15
-            self.Twist.angular.z = -float(err) / 400 #(-float(err) / 100)*2.5 + ((err - self.perr)/(rospy.get_time() - self.ptime))*1/50/100
+            self.Twist.angular.z = -float(err) / 500 #(-float(err) / 500)*2.5 + ((err - self.perr)/(rospy.get_time() - self.ptime))*1/50/100 
             self.serr = err + self.serr
             self.perr = err
             self.ptime = rospy.get_time()
