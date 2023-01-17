@@ -10,6 +10,10 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 
+max_inner_angle = 0.48869;  # 28 degree
+track = 0.172;              # m (left right wheel distance)
+wheelbase = 0.2;            # m (front rear wheel distance)
+
 class LineDetector:
     def __init__(self):
         print("Initializing line detector node")
@@ -38,22 +42,37 @@ class LineDetector:
         # Downscale to 256x256
         cv_image = cv2.resize(cv_image, (256, 256), interpolation = cv2.INTER_AREA)
 
+        ### histogram equalization ###
+
+        # Convert the image from BGR to YCrCb color space
+        hist_equalized_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2YCrCb)
+        # Split the image into 3 channels; Y, Cr and Cb channels respectively and store it in a vector
+        Y, CR, CB = cv2.split(hist_equalized_image)
+        # Equalize the histogram of only the Y channel
+        Y = cv2.equalizeHist(Y, Y)
+        # Merge 3 channels in the vector to form the color image in YCrCB color space.
+        hist_equalized_image = cv2.merge([Y, CR, CB])
+        #Convert the histogram equalized image from YCrCb to BGR color space again
+        hist_equalized_image = cv2.cvtColor(hist_equalized_image, cv2.COLOR_YCrCb2BGR)
+
+        ### end histrogram equlization ###
+
         # Change color and blur a bit
-        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+        cv_image = cv2.cvtColor(hist_equalized_image, cv2.COLOR_BGR2HSV)
         #cv_image = cv2.GaussianBlur(cv_image, (5, 5), 0)
         
         #white
-        low = np.array([ 0, 0, 240])
-        high = np.array([ 210, 30, 255])
+        low = np.array([ 80, 0, 240])
+        high = np.array([ 255, 20, 255])
 
         mask = cv2.inRange(cv_image, low, high)
 
         h, w, d = cv_image.shape
 
-        search_top = 150
-        search_bot = 256
-        search_left = 128
-        search_right = 256
+        search_top = h/2+62
+        search_bot = h
+        search_left = w/2
+        search_right = w
         mask[0:search_top, 0:w] = 0
         mask[search_bot:h, 0:w] = 0
         mask[0:h, 0:search_left] = 0
@@ -64,20 +83,18 @@ class LineDetector:
         M = cv2.moments(mask)
 
         # calculate x,y coordinate of center
-        cX = 128
-        cY = 128
+        cX = w/2
+        cY = h/2
         cx = 0
         if M["m00"] != 0:
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
             
-            cx = cX - 70 
-            if cX <= 2*h/8:
-                cx = cX +(h/2)
+            cx = cX - 90
 
-            err = cx - w/2
+            err = w/2 - cx 
             self.Twist.linear.x = 0.15
-            self.Twist.angular.z = -float(err) / 500 #(-float(err) / 500)*2.5 + ((err - self.perr)/(rospy.get_time() - self.ptime))*1/50/100 
+            self.Twist.angular.z = float(err) / 100 #(float(err) / 500)*2.5 + ((err - self.perr)/(rospy.get_time() - self.ptime))*1/50/100
             self.serr = err + self.serr
             self.perr = err
             self.ptime = rospy.get_time()
