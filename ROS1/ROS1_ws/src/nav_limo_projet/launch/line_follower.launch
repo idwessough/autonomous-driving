@@ -1,0 +1,12 @@
+<launch>
+    <rosparam ns="rate" file="$(find nav_limo_projet)/config/rate_config.yaml" />
+
+    <group ns="nav_limo_projet">
+        <node name="nav_limo" pkg="nav_limo_projet" type="state_machine.py" output="screen" />
+        <!-- node name="steering" pkg="line_follower" type="Ackermann_steering.py" output="screen" / -->
+    </group>
+
+    <!--  **************** Visualization ****************  -->
+	<!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find line_follower)/rviz/line_follower.rviz"/-->
+
+</launch>
