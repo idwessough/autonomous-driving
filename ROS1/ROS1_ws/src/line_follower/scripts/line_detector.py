@@ -21,7 +21,7 @@ class LineDetector:
         self.rate = rospy.Rate(rospy.get_param("/rate/lineDetector")) 
         self.image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, self.image_callback_raw)
         self.image_pub = rospy.Publisher("processed_image", Image, queue_size=40)
-        self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        self.cmd_vel_pub = rospy.Publisher('/limo_twist', Twist, queue_size=1)
         self.bridge = CvBridge()
         self.line_offset = 0
         self.Twist = Twist()
