@@ -70,13 +70,27 @@ class LimoEtat:
                 if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
                     msg.angular.z = 0
                     msg.linear.x = 0
+                    self.x = 0
                     self.cmd_vel_pub.publish(msg)
                     self.flag_Action = None
                     ((self.rate)*10).sleep()
+                    self.x = 0.15
                     break
 
         # elif self.flag_Action == 2: #Ralentir
-            
+        #     msg = Twist()
+        #     while (1):
+        #         try:
+        #             trans = self.tfBuffer.lookup_transform('Stop', 'base_link', rospy.Time(0))
+        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        #             pass
+        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
+        #             self.x = 0.07
+        #             self.flag_Action = None
+        #             ((self.rate)*10).sleep()
+        #             self.x = 0.15
+        #             break
+
         # elif self.flag_Action == 3: #VirageDroite
         #     msg = Twist()
         #     while (1):
@@ -114,9 +128,11 @@ class LimoEtat:
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
         #             msg.angular.z = 0
         #             msg.linear.x = 0
+        #             self.x = 0 
         #             self.cmd_vel_pub.publish(msg)
         #             self.flag_Action = None
         #             ((self.rate)*10).sleep()
+        #             self.x = 0.15
         #             break
 
         # elif self.flag_Action == 5: #Pieton
@@ -129,12 +145,12 @@ class LimoEtat:
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
         #             msg.angular.z = 0
         #             msg.linear.x = 0
+        #             self.x = 0  
         #             self.cmd_vel_pub.publish(msg)
         #             self.flag_Action = None
         #             ((self.rate)*10).sleep()
+        #             self.x = 0.15
         #             break
-        # else:
-        #     self.action_vitesseNormale()
 
     def run(self):
         while not rospy.is_shutdown():
