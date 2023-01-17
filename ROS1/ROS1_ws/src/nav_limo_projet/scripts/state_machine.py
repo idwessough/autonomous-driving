@@ -5,6 +5,7 @@ import tf2_ros
 import tf
 import sys
 import traceback
+import numpy as np
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 #from nav_msgs.msg import Odometry
@@ -24,7 +25,7 @@ class LimoEtat:
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         #var pilotage
-        self.x = 0
+        self.x = 0.15
         self.z = 0
         self.Twist = Twist()
         # Var state machine
@@ -49,6 +50,7 @@ class LimoEtat:
         try:
             self.z = data.data.angular.z
             self.Twist.angular.z = self.z
+            self.Twist.linear.x = self.x
             self.cmd_vel_pub.publish(self.Twist)
         except Exception as e:
             traceback.print_exc()
@@ -68,30 +70,85 @@ class LimoEtat:
             self.flag_Action = 4 #PassagePieton
         elif self.Action == "PIETON":
             self.flag_Action = 5 #Pieton
+        self.state_machine()
 
     # State Machine
-    def state_machine(self, Action_flag):
+    def state_machine(self):
         if self.flag_Action == 1: #Stop
-            try:
-                trans_stop = self.tfBuffer.lookup_transform('Stop', 'base_link', rospy.Time(0))
-            except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-                pass
-
             msg = Twist()
+            while (1):
+                try:
+                    trans = self.tfBuffer.lookup_transform('Stop', 'base_link', rospy.Time(0))
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                    pass
+                if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
+                    msg.angular.z = 0
+                    msg.linear.x = 0
+                    self.cmd_vel_pub.publish(msg)
+                    self.flag_Action = None
+                    ((self.rate)*10).sleep()
+                    break
 
-            msg.angular.z = 4 * math.atan2(trans.transform.translation.y, trans.transform.translation.x)
-            msg.linear.x = 0.5 * math.sqrt(trans.transform.translation.x ** 2 + trans.transform.translation.y ** 2)
-
-        elif self.flag_Action == 2: #Ralentir
+        # elif self.flag_Action == 2: #Ralentir
             
-        elif self.flag_Action == 3: #VirageDroite
+        # elif self.flag_Action == 3: #VirageDroite
+        #     msg = Twist()
+        #     while (1):
+        #         try:
+        #             trans = self.tfBuffer.lookup_transform('VirageDroite', 'base_link', rospy.Time(0))
+        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        #             pass
+        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 5):
+        #             msg.angular.z = 0.5
+        #             msg.linear.x = 0.15
+        #             self.cmd_vel_pub.publish(msg)
+        #             self.rate.sleep()
+        #             msg.angular.z = 0.3
+        #             msg.linear.x = 0.15
+        #             self.cmd_vel_pub.publish(msg)
+        #             self.rate.sleep()
+        #             msg.angular.z = 0.1
+        #             msg.linear.x = 0.15
+        #             self.cmd_vel_pub.publish(msg)
+        #             self.rate.sleep()
+        #             msg.angular.z = 0
+        #             msg.linear.x = 0.15
+        #             self.cmd_vel_pub.publish(msg)
+        #             self.rate.sleep()
+        #             self.flag_Action = None
+        #             break
 
-        elif self.flag_Action == 4: #PassagePieton
+        # elif self.flag_Action == 4: #PassagePieton
+        #     msg = Twist()
+        #     while (1):
+        #         try:
+        #             trans = self.tfBuffer.lookup_transform('PassagePieton', 'base_link', rospy.Time(0))
+        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        #             pass
+        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
+        #             msg.angular.z = 0
+        #             msg.linear.x = 0
+        #             self.cmd_vel_pub.publish(msg)
+        #             self.flag_Action = None
+        #             ((self.rate)*10).sleep()
+        #             break
 
-        elif self.flag_Action == 5: #Pieton
-            
-        else:
-            self.action_vitesseNormale()
+        # elif self.flag_Action == 5: #Pieton
+        #     msg = Twist()
+        #     while (1):
+        #         try:
+        #             trans = self.tfBuffer.lookup_transform('Pieton', 'base_link', rospy.Time(0))
+        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        #             pass
+        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
+        #             msg.angular.z = 0
+        #             msg.linear.x = 0
+        #             self.cmd_vel_pub.publish(msg)
+        #             self.flag_Action = None
+        #             ((self.rate)*10).sleep()
+        #             break
+        # else:
+        #     self.action_vitesseNormale()
 
     def run(self):
         while not rospy.is_shutdown():
