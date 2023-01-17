@@ -7,6 +7,6 @@
     </group>
 
     <!--  **************** Visualization ****************  -->
-	<!-- node name="rviz" pkg="rviz" type="rviz" args="-d $(find line_follower)/rviz/line-follower.rviz"/ -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find line_follower)/rviz/line_follower.rviz"/>
 
 </launch>
