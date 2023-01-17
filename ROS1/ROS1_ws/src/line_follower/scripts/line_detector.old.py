@@ -35,7 +35,7 @@ fy = 603.2431640625  # y-axis focal length
 width = 1280  # 640
 height = 720  # 480
 cam_height = 1.0  # Camera mounting height
-cam_center = 0.1  # Camera distance from middle position
+cam_center = 0.0  # Camera distance from middle position
 
 # goal pos for limo
 center_off = 0
