@@ -6,6 +6,10 @@
         <!-- node name="steering" pkg="line_follower" type="Ackermann_steering.py" output="screen" / -->
     </group>
 
+    <!--  **************** TF ****************  -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="odom_to_base_link" args="0 0 0 0 0 0 0 /odom /base_link" />
+    <node name="base-link_tf2_broadcaster" pkg="nav_limo_projet" type="baselink_tf2_broadcaster.py" respawn="false" output="screen" />
+
     <!--  **************** Visualization ****************  -->
 	<!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find line_follower)/rviz/line_follower.rviz"/-->
 
