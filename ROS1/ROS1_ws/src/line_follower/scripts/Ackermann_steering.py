@@ -33,11 +33,10 @@ class steering:
     def ackermann(self, line_offset):
 
         err = line_offset
+        err = err-0.70
         self.Twist.linear.x = 0.15
-        self.Twist.angular.z = -float(err)
+        self.Twist.angular.z = float(err)
 
-        self.Twist.linear.x = 0.15
-        self.send_command(self.Twist.linear.x, self.Twist.angular.z)
         # Output the twist angle
         self.ptime = rospy.get_time()
         self.cmd_vel_pub.publish(self.Twist)
@@ -48,8 +47,8 @@ class steering:
 
 
 def main(args):
-    rospy.init_node('line_detector')
-    steering = steering()
+    rospy.init_node('steering')
+    steering_syst = steering()
     try:
         rospy.spin()
     except KeyboardInterrupt:

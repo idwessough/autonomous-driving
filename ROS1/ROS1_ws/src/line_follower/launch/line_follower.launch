@@ -3,6 +3,7 @@
 
     <group ns="line_detector">
         <node name="line_detector" pkg="line_follower" type="line_detector.py" output="screen" />
+        <!-- node name="steering" pkg="line_follower" type="Ackermann_steering.py" output="screen" / -->
     </group>
 
     <!--  **************** Visualization ****************  -->
