@@ -32,20 +32,6 @@ class LimoEtat:
         self.Action = None
         self.flag_Action = None
 
-    def action_vitesseNormale(self):
-        self.x = 0.15
-
-    def action_stop(self):
-        self.x = 0
-
-    def action_ralentir(self):
-        self.x = 0.07
-    
-    def action_virageDroite(self):
-        self.z = 0.5
-        self.action_vitesseNormale()
-    
-
     def callback_twist(self, data):
         try:
             self.z = data.data.angular.z
