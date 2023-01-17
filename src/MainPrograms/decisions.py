@@ -1,4 +1,9 @@
 import pandas as pd
+import rospy
+from sensor_msgs.msg import Image
+from darknet_ros_msgs.msg import BoundingBoxes
+from std_msgs.msg import Header
+from std_msgs.msg import String
 # Beta script emulating autonomous behaviour without real data inputs
 
 # Initialize data to retrieve from ROSDarknet
