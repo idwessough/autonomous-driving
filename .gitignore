@@ -6,3 +6,4 @@ devel/
 
 #VScode data
 .vscode/
+ROS1/ROS1_ws/src/line_follower/scripts/edge_detection.pyc
