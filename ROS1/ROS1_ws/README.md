@@ -10,6 +10,10 @@
 
 > roslaunch line_follower line_follower.launch
 
+### Lancement machine a etat:
+
+> 
+
 
 
 
