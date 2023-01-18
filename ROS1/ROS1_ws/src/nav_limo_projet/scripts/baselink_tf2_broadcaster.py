@@ -19,53 +19,17 @@ def handle_baselink_pose(data, baselink_name):
     t.transform.translation.x = data.pose.pose.position.x
     t.transform.translation.y = data.pose.pose.position.y
     t.transform.translation.z = 0.0
-    q = tf_conversions.transformations.quaternion_from_euler(0, 0, data.theta)
-    t.transform.rotation.x = q[0]
-    t.transform.rotation.y = q[1]
-    t.transform.rotation.z = q[2]
-    t.transform.rotation.w = q[3]
+    t.transform.rotation.x = data.pose.pose.orientation.x
+    t.transform.rotation.y = data.pose.pose.orientation.y
+    t.transform.rotation.z = data.pose.pose.orientation.z
+    t.transform.rotation.w = data.pose.pose.orientation.w
 
     br.sendTransform(t)
 
-"""header: 
-  seq: 91652
-  stamp: 
-    secs: 1673973345
-    nsecs: 624881672
-  frame_id: "odom"
-child_frame_id: "base_link"
-pose: 
-  pose: 
-    position: 
-      x: -0.000443911303076
-      y: 0.00135954430578
-      z: 0.0
-    orientation: 
-      x: 0.0
-      y: 0.0
-      z: -0.00261799088742
-      w: 0.999996573056
-  covariance: [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
-twist: 
-  twist: 
-    linear: 
-      x: 0.0
-      y: 0.0
-      z: 0.0
-    angular: 
-      x: 0.0
-      y: 0.0
-      z: -0.0
-  covariance: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
----
-type
-nav_msgs/Odometry
-"""
-
 if __name__ == '__main__':
-    rospy.init_node('tf2_baselink_broadcaster')
+    rospy.init_node('odom_to_baselink')
     baselink_name = "base_link"
     rospy.Subscriber('/odom',
                      Odometry,
-                     handle_baselink_pose)
+                     handle_baselink_pose, baselink_name)
     rospy.spin()
