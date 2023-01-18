@@ -1,8 +1,7 @@
 <launch>
-    <group ns="line_detector">
-        <node name="sign_detection" pkg="test_rosdarknet" type="autonomous_driving.py" output="screen" />
-    </group>
-
+    
+    <node name="sign_detection" pkg="test_rosdarknet" type="autonomous_driving.py" output="screen" />
+    
     <!--  **************** Visualization ****************  -->
 	<!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find line_follower)/rviz/line_follower.rviz"/-->
 
