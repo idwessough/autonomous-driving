@@ -17,6 +17,10 @@ class LimoEtat:
         print("Initializing limo_etat node")
         # config rate 
         self.rate = rospy.Rate(rospy.get_param("/rate/nav_limo_projet")) 
+        #var pilotage
+        self.x = 0.15
+        self.z = 0
+        self.Twist = Twist()
         # init subscriber/publisher
         self.twist_sub = rospy.Subscriber('/limo_twist', Twist , self.callback_twist)
         self.action_sub = rospy.Subscriber('/limo_action', String, self.callback_action)
@@ -24,17 +28,13 @@ class LimoEtat:
         # Tf buffer 
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
-        #var pilotage
-        self.x = 0.15
-        self.z = 0
-        self.Twist = Twist()
         # Var state machine
         self.Action = None
         self.flag_Action = None
 
     def callback_twist(self, data):
         try:
-            self.z = data.data.angular.z
+            self.z = data.angular.z
             self.Twist.angular.z = self.z
             self.Twist.linear.x = self.x
             self.cmd_vel_pub.publish(self.Twist)
