@@ -1,0 +1,5 @@
+object_class,object_distance,object_position,actions
+Stop,< 50,,Cmdvel=0
+Person,< 50,InRoad,
+Red,< 50,,
+Yellow,< 50,,
