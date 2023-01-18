@@ -64,7 +64,7 @@ class LimoEtat:
             msg = Twist()
             while (1):
                 try:
-                    trans = self.tfBuffer.lookup_transform('Stop', 'base_link', rospy.Time(0))
+                    trans = self.tfBuffer.lookup_transform('STOP', 'base_link', rospy.Time(0))
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                     pass
                 if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
@@ -81,7 +81,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('Stop', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('RALENTIR', 'base_link', rospy.Time(0))
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
@@ -95,7 +95,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('VirageDroite', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('VIRAGEDROITE', 'base_link', rospy.Time(0))
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 5):
@@ -122,7 +122,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('PassagePieton', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('PASSAGEPIETON', 'base_link', rospy.Time(0))
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
@@ -139,7 +139,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('Pieton', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('PIETON', 'base_link', rospy.Time(0))
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
