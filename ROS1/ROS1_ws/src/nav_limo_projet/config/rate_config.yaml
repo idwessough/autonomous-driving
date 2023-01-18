@@ -1,0 +1,2 @@
+# Node rate config
+nav_limo_projet: 50.0 # rate to run the state machine (hz)

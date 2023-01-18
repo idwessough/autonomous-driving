@@ -40,6 +40,7 @@ RUN apt-get install -y --no-install-recommends \
         software-properties-common \
         python3-pip \
         python-matplotlib \
+        evince \
         python-tk
 
 # Install XFCE and terminal
@@ -64,6 +65,7 @@ RUN apt-get install -y --no-install-recommends \
         ros-melodic-teleop-twist-keyboard \
         ros-melodic-robot-pose-ekf \
         ros-melodic-video-stream-opencv \
+        ros-melodic-tf2-tools \
         && apt-get clean 
 
 # Install TurboVNC
