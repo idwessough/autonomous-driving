@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 import rospy
 import tf2_ros
 import tf
@@ -8,6 +8,7 @@ import traceback
 import numpy as np
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
+import sign_tf2_broadcaster
 #from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 
@@ -18,8 +19,8 @@ class LimoEtat:
         # config rate 
         self.rate = rospy.Rate(rospy.get_param("/rate/nav_limo_projet")) 
         # init subscriber/publisher
-        self.rospy.Subscriber('/limo_twist', Twist , self.callback_twist)
-        self.rospy.Subscriber('/limo_action', String, self.callback_action)
+        self.twist_sub = rospy.Subscriber('/limo_twist', Twist , self.callback_twist)
+        self.action_sub = rospy.Subscriber('/limo_action', String, self.callback_action)
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         # Tf buffer 
         self.tfBuffer = tf2_ros.Buffer()
@@ -28,6 +29,8 @@ class LimoEtat:
         self.x = 0.15
         self.z = 0
         self.Twist = Twist()
+        # test with transform
+        sign_tf2_broadcaster.handle_sign_pose(3, 3, "stop")
         # Var state machine
         self.Action = None
         self.flag_Action = None
