@@ -24,7 +24,6 @@ def read_cameras():
     DarknetData = message_filters.Subscriber("/darknet_ros/bounding_boxes", BoundingBoxes)
     # Subscribe to depth CAMERA to have the depth image
     DepthImage = message_filters.Subscriber("/camera/depth/image_raw", Image)
-    listener = tf2_ros.TransformListener(tfBuffer)
     print("STARTING DATA SYNCHRONIZATION BETWEEN CAMERA AND DARKNET")
     # Synchronize images 
     ts = message_filters.ApproximateTimeSynchronizer([DarknetData, DepthImage], queue_size=10, slop=2.5)
@@ -33,6 +32,7 @@ def read_cameras():
     rospy.spin()
 
 def images_callback(DarknetData, DepthImage):
+    listener = tf2_ros.TransformListener(tfBuffer)
     person_detected = False
     bridge = CvBridge() 
     print("{nb} Objects detected".format(nb=len(DarknetData.bounding_boxes)))
@@ -115,12 +115,13 @@ def images_callback(DarknetData, DepthImage):
 
             #Tf at location of sign
             msg = Pose()
-            msg.point.x = X
-            msg.point.y = Y
-            msg.point.z = 0
-            msg.quaternion = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
+            msg.position.x = X
+            msg.position.y = Y
+            msg.position.z = 0
+            msg.orientation = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
             sign_tf2_broadcaster.handle_sign_pose(msg, action_todo, "camera_depth_frame")
 
+            listener.waitForTransform("/"+action_todo, '/camera_depth_frame', rospy.Time(), rospy.Duration(1.0))
             #Express tf of sign in frame odom
             try:
                 trans = tfBuffer.lookup_transform('action_todo', 'odom', rospy.Time(0))
