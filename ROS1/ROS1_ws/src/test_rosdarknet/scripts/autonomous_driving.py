@@ -71,17 +71,26 @@ def images_callback(DarknetData, DepthImage):
 
             # If there is a person near from the traffic sign
             elif object_class == "PassagePieton": 
-                if person_distance-100 <= nearest_distance <= person_distance+100:
+                if person_detected and person_distance-100 <= nearest_distance <= person_distance+100:
                     action_todo = "PASSAGEPIETON"
                 else:
-                    action_todo = "STOP" 
-            # TODO : Add other cases after that
-            elif box.Class == "TraficLight":
-                if nearest_distance <= 200:
-                    action_todo = "SLOW"
-                print("soon charge")
+                    pass 
+            
+            elif object_class == "rouge": 
+                    action_todo = "REDLIGHT"
+            
+            elif object_class == "vert":
+                action_todo = "GREENLIGHT"
+                
+            elif object_class == "VirageDroite":
+                action_todo = "RIGHT"
         
+            elif object_class == "RoutePrioritaire":
+                action_todo = "PRIORITY"
+            
+            # TODO : Add other cases after that    
             else:
+                print("soon charge")
                 action_todo = "OBJECT PAS ENCORE PRIS EN CHARGE" 
                 
             # Compute X and Y coordinates of the center of the bounding box thanks to trigonometry
