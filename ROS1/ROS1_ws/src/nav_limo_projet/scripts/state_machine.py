@@ -8,7 +8,6 @@ import traceback
 import numpy as np
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
-import sign_tf2_broadcaster
 #from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 
@@ -29,8 +28,6 @@ class LimoEtat:
         self.x = 0.15
         self.z = 0
         self.Twist = Twist()
-        # test with transform
-        sign_tf2_broadcaster.handle_sign_pose(3, 3, "stop")
         # Var state machine
         self.Action = None
         self.flag_Action = None
