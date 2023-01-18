@@ -16,12 +16,12 @@ def handle_sign_pose(data, Sign_name, header_frame):
     t.header.stamp = rospy.Time.now()
     t.header.frame_id = header_frame
     t.child_frame_id = Sign_name
-    t.transform.translation.x = data.position.x
-    t.transform.translation.y = data.position.y
+    t.transform.translation.x = data.pose.position.x
+    t.transform.translation.y = data.pose.position.y
     t.transform.translation.z = 0.0
-    t.transform.rotation.x = data.orientation[0]
-    t.transform.rotation.y = data.orientation[1]
-    t.transform.rotation.z = data.orientation[2]
-    t.transform.rotation.w = data.orientation[3]
+    t.transform.rotation.x = data.pose.orientation[0]
+    t.transform.rotation.y = data.pose.orientation[1]
+    t.transform.rotation.z = data.pose.orientation[2]
+    t.transform.rotation.w = data.pose.orientation[3]
 
     br.sendTransform(t)

@@ -3,6 +3,7 @@
 import rospy
 # tf imports
 import tf2_ros
+import tf2_geometry_msgs
 import tf
 import sign_tf2_broadcaster
 import tf_conversions
@@ -10,7 +11,7 @@ import tf_conversions
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image 
 from std_msgs.msg import String
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 from darknet_ros_msgs.msg import BoundingBoxes
 import message_filters 
 import numpy as np
@@ -114,22 +115,19 @@ def images_callback(DarknetData, DepthImage):
             print("X = {X} mm, Y = {Y} mm".format(X=X, Y=Y))
 
             #Tf at location of sign
-            msg = Pose()
-            msg.position.x = X
-            msg.position.y = Y
-            msg.position.z = 0
-            msg.orientation = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
-            sign_tf2_broadcaster.handle_sign_pose(msg, action_todo, "camera_depth_frame")
-
-            listener.waitForTransform("/"+action_todo, '/camera_depth_frame', rospy.Time(), rospy.Duration(1.0))
-            #Express tf of sign in frame odom
-            try:
-                trans = tfBuffer.lookup_transform('action_todo', 'odom', rospy.Time(0))
-            except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-                pass
+            msg = PoseStamped()
+            msg.header.stamp = rospy.Time.now()
+            msg.header.frame_id = "camera_depth_frame"
+            msg.pose.position.x = X
+            msg.pose.position.y = Y
+            msg.pose.position.z = 0
+            msg.pose.orientation = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
+            
+            transform = tfBuffer.lookup_transform('odom', msg.header.frame_id, rospy.Time(0), rospy.Duration(1.0))
+            pose_transformed = tf2_geometry_msgs.do_transform_pose(msg, transform)
 
             #Create new sign tf in respect to odom
-            sign_tf2_broadcaster.handle_sign_pose(trans, action_todo, "odom")
+            sign_tf2_broadcaster.handle_sign_pose(pose_transformed, action_todo, "odom")
 
         else:
             action_todo = "GO"
