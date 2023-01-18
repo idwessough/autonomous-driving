@@ -1,12 +1,21 @@
 #! /usr/bin/env python2
 
 import rospy
+# tf imports
+import tf2_ros
+import tf
+import sign_tf2_broadcaster
+import tf_conversions
+
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image 
 from std_msgs.msg import String
+from geometry_msgs.msg import Pose
 from darknet_ros_msgs.msg import BoundingBoxes
 import message_filters 
 import numpy as np
+
+tfBuffer = tf2_ros.Buffer()
 
 def read_cameras():
     """_summary_: This function is used to read the images from the cameras (Darknet Depth) and to synchronize them.
@@ -15,7 +24,7 @@ def read_cameras():
     DarknetData = message_filters.Subscriber("/darknet_ros/bounding_boxes", BoundingBoxes)
     # Subscribe to depth CAMERA to have the depth image
     DepthImage = message_filters.Subscriber("/camera/depth/image_raw", Image)
-    
+    listener = tf2_ros.TransformListener(tfBuffer)
     print("STARTING DATA SYNCHRONIZATION BETWEEN CAMERA AND DARKNET")
     # Synchronize images 
     ts = message_filters.ApproximateTimeSynchronizer([DarknetData, DepthImage], queue_size=10, slop=2.5)
@@ -94,7 +103,24 @@ def images_callback(DarknetData, DepthImage):
             X = abs(nearest_distance * np.sin(object_angle))
             Y = abs(nearest_distance * np.cos(object_angle))
             print("X = {X} mm, Y = {Y} mm".format(X=X, Y=Y))
-            
+
+            #Tf at location of sign
+            msg = Pose()
+            msg.point.x = X
+            msg.point.y = Y
+            msg.point.z = 0
+            msg.quaternion = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
+            sign_tf2_broadcaster.handle_sign_pose(msg, action_todo, "camera_depth_frame")
+
+            #Express tf of sign in frame odom
+            try:
+                trans = tfBuffer.lookup_transform('action_todo', 'odom', rospy.Time(0))
+            except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                pass
+
+            #Create new sign tf in respect to odom
+            sign_tf2_broadcaster.handle_sign_pose(trans, action_todo, "odom")
+
         else:
             action_todo = "GO"
             print("continue")
@@ -102,8 +128,6 @@ def images_callback(DarknetData, DepthImage):
         limo_publisher = rospy.Publisher('/limo_action', String, queue_size=10)
         limo_publisher.publish(action_todo)
 
-
-            #action_todo = "STOP"
         # Process images...
         print(action_todo)
 
