@@ -1,0 +1,2 @@
+# Node rate config
+sign_identification: 50.0 # rate to run the state machine (hz)
