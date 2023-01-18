@@ -3,8 +3,10 @@
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image 
+from std_msgs.msg import String
 from darknet_ros_msgs.msg import BoundingBoxes
 import message_filters 
+import numpy as np
 
 def read_cameras():
     """_summary_: This function is used to read the images from the cameras (Darknet Depth) and to synchronize them.
@@ -24,7 +26,7 @@ def read_cameras():
 def images_callback(DarknetData, DepthImage):
     person_detected = False
     bridge = CvBridge() 
-    print("{nb} Objects detected".format(len(DarknetData.bounding_boxes)))
+    print("{nb} Objects detected".format(nb=len(DarknetData.bounding_boxes)))
     depth_image = bridge.imgmsg_to_cv2(DepthImage)
     print(depth_image.shape)
     nearest_distance = 100000
@@ -82,12 +84,23 @@ def images_callback(DarknetData, DepthImage):
             else:
                 action_todo = "OBJECT PAS ENCORE PRIS EN CHARGE" 
                 
+            # Compute X and Y coordinates of the center of the bounding box thanks to trigonometry
+            camera_angle = 67.9
+            camera_height = 1.5
+            camera_width = 1.6
+            camera_focal = 1
+            # Compute the angle of the object
+            object_angle = (camera_angle/2)# - (camera_angle * (nearest_object.xmin + nearest_object.xmax)/(2*camera_width))
+            X = abs(nearest_distance * np.sin(object_angle))
+            Y = abs(nearest_distance * np.cos(object_angle))
+            print("X = {X} mm, Y = {Y} mm".format(X=X, Y=Y))
+            
         else:
             action_todo = "GO"
             print("continue")
         # publish action_todo in ros topic
-        #limo_publisher = rospy.Publisher('/limo_action', String, queue_size=10)
-        #limo_publisher.publish(action_todo)
+        limo_publisher = rospy.Publisher('/limo_action', String, queue_size=10)
+        limo_publisher.publish(action_todo)
 
 
             #action_todo = "STOP"
