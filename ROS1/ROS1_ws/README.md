@@ -1,5 +1,21 @@
 # Lancement du robot avec suivi de ligne:
 
+### demarrage robot (appuie long sur bouton jusqu'au signal sonore)
+
+### Se connecter au robot en ssh
+
+> ssh agilex@ip
+
+mdp:
+> agx
+
+Ouvrir 3 fenetre ssh, et lancer ces 3 commandes:
+> roscore
+
+> roslaunch astra_camera dabai_u3.launch
+
+> roslaunch limo_bringup limo_start.launch
+
 ### Apres le lancement du [docker](../Docker/README.md):
 
 > cd ROS1_ws
