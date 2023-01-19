@@ -5,55 +5,6 @@ auteurs : Idwes Sough, Arthur Saunier, Younes Abouchi
 ## Objectifs
 Faire naviguer des véhicules (Turtlebot + [Limo](https://global.agilex.ai/products/limo)) dans un environnement urbain (route, feu, piétons, signalisation, ...) en respectant sa réglementation (laisser) 
 
-##
-
-Informations pour tag vIntermediate:
-
-Informations de compilation et demo ds le dossier neural network.
-
-## Listes des fonctionnalités :
-
-1. Un conteneur docker contenant :
-    1. [x] Un réseau de neurone YOLO/Darknet
-        1. [x] Reconnaissance panneaux
-        2. [x] Reconnaissance personnage
-        3. [x] Reconnaissance signalisation lumineuse de feux tricolores
-        4. [x] Reconnaissance d'objets hautement sensibles (ex poussette)
-    2. [x] ROS nodes
-        1. [x] Flux vidéos en entrée (rgb depth)
-        2. [ ] YOLO Darknet
-        3. [ ] Post-traitement
-        4. [x] Stack navigation
-        
-
-# Demo avec camera pc
-
-./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights
-
-# Demo avec camera limo
-
-
-
-## On Limo:
-- lancer roscore
-- Lancer LIDAR
-roslaunch limo_bringup limo_start.launch pub_odom_tf:=false
-- Lancer caméra
-roslaunch astra_camera dabai_u3.launch
-- lancer nav (après avoir mapper l'environnement)
-roslaunch limo_bringup limo_navigation_ackerman.launch
-
-Lancer ROSCore de Limo
-rosrun web_video_server web_video_server
-
-topic
-/camera/rgb/image_raw
-modifier CUDA version dans MakeFile 
-NVCC=/usr/local/cuda-11.8/bin/nvcc
-./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights http://localhost:8080/stream?topic=/camera/rgb/image_raw
-
-
-
 ## Fonctionnalités spécifique au projet :
 - Fonctionnelles :
   - Un réseau de neurone dont les inférences tournent sur GPU CUDA (configuré pour RTX 2070 Super et RTX 3090?):
@@ -73,11 +24,77 @@ La solution dockerisée devra pouvoir tourner indépendamment sur un Agilex Limo
 
 Le projet nécessite de maquetter une route, en collaboration avec un autre projet de Smart City consistant à la synchronisation de feux tricolores de signalisation lumineuse par le biai d'une LED par couleur à detecter et prendre en compte dans la conduite autonome.
 
+## Listes des fonctionnalités :
+
+1. Un conteneur docker contenant :
+    1. [x] Un réseau de neurone YOLO/Darknet
+        1. [x] Reconnaissance panneaux
+        2. [x] Reconnaissance personnage
+        3. [x] Reconnaissance signalisation lumineuse de feux tricolores
+        4. [x] Reconnaissance d'objets hautement sensibles (ex poussette)
+    2. [x] ROS nodes
+        1. [x] Flux vidéos en entrée (rgb depth)
+        2. [x] YOLO Darknet
+        3. [x] Post-traitement
+        4. [x] Line follower
+    3. [x] Docker
+        1. [x] Docker ROS2 PC
+        2. [x] Docker ROS1 PC
+        3. [] Docker Reseau
+        4. [x] Docker Limo ROS2
+        5. [] Docker Limo ROS1
+
 ## Technologies
 * ROS
 * Python
 * darknet/TF
 * Docker
+
+# SPRINT 1
+
+## Demo avec camera pc
+
+./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights
+
+## On Limo:
+- lancer roscore
+- Lancer LIDAR
+roslaunch limo_bringup limo_start.launch pub_odom_tf:=false
+- Lancer caméra
+roslaunch astra_camera dabai_u3.launch
+- lancer nav (après avoir mapper l'environnement)
+roslaunch limo_bringup limo_navigation_ackerman.launch
+
+Lancer ROSCore de Limo
+rosrun web_video_server web_video_server
+
+topic
+/camera/rgb/image_raw
+modifier CUDA version dans MakeFile 
+NVCC=/usr/local/cuda-11.8/bin/nvcc
+./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights http://localhost:8080/stream?topic=/camera/rgb/image_raw
+
+# SPRINT 2
+
+## Noeud nav_limo
+
+```mermaid
+graph LR
+    T1[Sign detection] -- /limo_action --> Node(((nav_limo_projet)))
+    T2[Line follower] -- /limo_twist --> Node(((nav_limo_projet)))
+
+    Node -- /cmd_vel -->D[limo base]
+```
+
+## Noeud Line_follower
+
+```mermaid
+graph LR
+    S1[Camera pkg] -. /camera/rgb/image_rect_color .-> Node(((line_follower)))
+
+    Node -- /limo_twist -->D((nav_limo_projet))
+    Node -- /line_follower/processed_image -->R(rviz)
+```
 
 ## Liens utiles
 * []()
