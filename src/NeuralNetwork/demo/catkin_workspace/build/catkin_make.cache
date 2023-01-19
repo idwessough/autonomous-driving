@@ -1,2 +1,0 @@
-process_image
--DCATKIN_DEVEL_PREFIX=/home/triton_01/Documents/projet_iD/S1_G1_Saunier_Sough_Abouchi/src/NeuralNetwork/demo/catkin_workspace/devel -DCMAKE_INSTALL_PREFIX=/home/triton_01/Documents/projet_iD/S1_G1_Saunier_Sough_Abouchi/src/NeuralNetwork/demo/catkin_workspace/install -G Unix Makefiles

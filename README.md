@@ -76,7 +76,9 @@ NVCC=/usr/local/cuda-11.8/bin/nvcc
 
 # SPRINT 2
 
-## Noeud nav_limo
+## Noeuds ROS:
+
+### Noeud nav_limo
 
 ```mermaid
 graph LR
@@ -86,7 +88,7 @@ graph LR
     Node -- /cmd_vel -->D[limo base]
 ```
 
-## Noeud Line_follower
+### Noeud Line_follower
 
 ```mermaid
 graph LR
@@ -96,10 +98,18 @@ graph LR
     Node -- /line_follower/processed_image -->R(rviz)
 ```
 
-## Liens utiles
-* []()
+### Noeud Line_follower
 
+```mermaid
+graph LR
+    T1[darknet_ros] -- /darknet_ros/bounding_boxes --> Node(((sign_detection)))
+    S1[Camera pkg] -. /camera/depth/image_raw .-> Node(((sign_detection)))
 
+    Node -- /limo_action -->D((nav_limo_projet))
+    Node <-- /tf -->TF(/tf_sign_to_odom_broadcaster)
+
+    TF <-- /tf --> D
+```
 
 # Description de l'algo
 
@@ -158,6 +168,11 @@ sequenceDiagram
     John->Bob: How about you?
     Bob-->John: Jolly good!
 ```
+# Liste des dépendances et pré-requis
+
+- Package ROS-darknet [lien](https://github.com/leggedrobotics/darknet_ros)
+- Package Limo ROS1 [lien](https://github.com/agilexrobotics/limo_ros)
+- Package Limo ROS2 [lien](https://github.com/agilexrobotics/limo_ros2)
 
 # Procédure de mise en route
 

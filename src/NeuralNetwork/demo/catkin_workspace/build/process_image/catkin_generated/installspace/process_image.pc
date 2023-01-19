@@ -1,8 +1,0 @@
-prefix=/home/triton_01/Documents/projet_iD/S1_G1_Saunier_Sough_Abouchi/src/NeuralNetwork/demo/catkin_workspace/install
-
-Name: process_image
-Description: Description of process_image
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
