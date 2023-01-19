@@ -19,9 +19,9 @@ def handle_sign_pose(data, header_frame, sign_name,):
     t.transform.translation.x = data.pose.position.x
     t.transform.translation.y = data.pose.position.y
     t.transform.translation.z = 0.0
-    t.transform.rotation.x = data.pose.orientation[0]
-    t.transform.rotation.y = data.pose.orientation[1]
-    t.transform.rotation.z = data.pose.orientation[2]
-    t.transform.rotation.w = data.pose.orientation[3]
+    t.transform.rotation.x = data.pose.orientation.x
+    t.transform.rotation.y = data.pose.orientation.y
+    t.transform.rotation.z = data.pose.orientation.z
+    t.transform.rotation.w = data.pose.orientation.w
 
     br.sendTransform(t)

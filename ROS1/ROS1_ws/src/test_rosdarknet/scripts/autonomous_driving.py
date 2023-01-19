@@ -22,6 +22,8 @@ camera_angle = 67.9
 class sign_identification:
     def __init__(self):
         print("Initializing limo_etat node")
+        self.flag = 0
+        traffic_sign = None
         # config rate 
         self.rate = rospy.Rate(rospy.get_param("/rate/sign_identification")) 
         # init subscriber/publisher
@@ -30,7 +32,7 @@ class sign_identification:
         # Subscribe to depth CAMERA to have the depth image
         self.DepthImage = message_filters.Subscriber("/camera/depth/image_raw", Image)
         #publisher for actions to follow for limo
-        self.limo_publisher = rospy.Publisher('/limo_action', String, queue_size=10)
+        self.limo_publisher = rospy.Publisher("/limo_action", String, queue_size=10)
         # Tf buffer and listener
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
@@ -112,15 +114,21 @@ class sign_identification:
                 # compute coordinates of point
                 X, Y = self.compute_distance(nearest_distance)
 
-                # Create new sign tf in odom
-                self.Create_tf(X, Y, action_todo)
+                # Create new sign tf in odom frame
+                if self.flag == 0:
+                    self.Create_tf(X, Y, action_todo)
+                    self.flag = 1
+                
 
             else:
                 action_todo = "GO"
                 print("continue")
 
+            rospy.loginfo("Publishing action : {action_todo}".format(action_todo=action_todo))
             # publish action_todo in ros topic
             self.limo_publisher.publish(action_todo)
+            rospy.loginfo("Published action : {action_todo}".format(action_todo=action_todo))
+
 
     def Create_tf(self, X, Y, action_todo):
         # poseStamped in camera_depth_frame
@@ -130,12 +138,16 @@ class sign_identification:
         msg.pose.position.x = X
         msg.pose.position.y = Y
         msg.pose.position.z = 0
-        msg.pose.orientation = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
-        
+        q = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
+        msg.pose.orientation.x = q[0]
+        msg.pose.orientation.y = q[1]
+        msg.pose.orientation.z = q[2]
+        msg.pose.orientation.w = q[3]
+
         # transpose msg from /camera_depth to /odom frame
         transform = self.tfBuffer.lookup_transform('odom', msg.header.frame_id, rospy.Time(0), rospy.Duration(1.0))
         #pb quaternion vs euler a check
-        pose_transformed = tf2_geometry_msgs.do_transform_pose_stamped(msg, transform)
+        pose_transformed = tf2_geometry_msgs.do_transform_pose(msg, transform)
 
         # Create new sign tf in respect to odom
         sign_tf2_broadcaster.handle_sign_pose(pose_transformed, "odom", action_todo)
