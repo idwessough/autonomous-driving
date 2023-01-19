@@ -24,6 +24,7 @@ class sign_identification:
         print("Initializing sign_identification node")
         self.flag = 0
         self.traffic_sign = None
+        self.reaction_distance = 850 
         # config rate 
         self.rate = rospy.Rate(rospy.get_param("/rate/sign_identification")) 
         # init subscriber/publisher
@@ -77,17 +78,19 @@ class sign_identification:
         # If there is another nearest object
         if nearest_object is not None: 
             print("Nearest object : {nearest_object.Class} at {nearest_distance} mm".format(nearest_object=nearest_object, nearest_distance=nearest_distance))
-            reaction_distance = 750    
+               
             object_class = nearest_object.Class
-            # Check if the object is the same as the previous one
-            if object_class == self.traffic_sign:
-                self.flag = 1
-            else:
-                self.flag = 0
-                self.traffic_sign = object_class
 
             # Check if distance is close enough to react
-            if nearest_distance <= reaction_distance:
+            if nearest_distance <= self.reaction_distance:
+                # Check if the object is the same as the previous one
+                if object_class == self.traffic_sign:
+                    self.flag = 1
+                else:
+                    self.flag = 0
+                    self.traffic_sign = object_class
+
+                #set action_todo
                 if object_class == "Stop": 
                     action_todo = "STOP" 
                 
@@ -99,7 +102,7 @@ class sign_identification:
                     if person_detected and person_distance-100 <= nearest_distance <= person_distance+100:
                         action_todo = "PASSAGEPIETON"
                     else:
-                        pass 
+                        action_todo = "DEFAULT"
                 
                 elif object_class == "rouge": 
                         action_todo = "REDLIGHT"
@@ -112,30 +115,23 @@ class sign_identification:
             
                 elif object_class == "RoutePrioritaire":
                     action_todo = "PRIORITY"
-                
-                # TODO : Add other cases after that    
                 else:
-                    print("soon change")
-                    action_todo = "OBJECT PAS ENCORE PRIS EN CHARGE" 
-                
+                    action_todo = "DEFAULT"
+
                 # compute coordinates of point
-                X, Y = self.compute_distance(nearest_distance)
-
+                X, Y = self.compute_distance(nearest_distance) 
                 # Create new sign tf in odom frame
+                self.Create_tf(X, Y, action_todo)
+                rospy.loginfo(self.flag)
+                #Publish action only for the first recognition (in range) of sign
                 if self.flag == 0:
-                    self.Create_tf(X, Y, action_todo)
+                    rospy.loginfo("Publishing action : {action_todo}".format(action_todo=action_todo))
+                    self.limo_publisher.publish(action_todo)
                     self.flag = 1
-                
-
+                    
             else:
                 action_todo = "GO"
                 print("continue")
-
-            rospy.loginfo("Publishing action : {action_todo}".format(action_todo=action_todo))
-            # publish action_todo in ros topic
-            if self.flag == 0:
-                self.limo_publisher.publish(action_todo)
-                rospy.loginfo("Published action : {action_todo}".format(action_todo=action_todo))
 
 
     def Create_tf(self, X, Y, action_todo):
