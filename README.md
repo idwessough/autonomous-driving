@@ -177,3 +177,7 @@ sequenceDiagram
 # Procédure de mise en route
 
 Suivre ce [lien](ROS1/ROS1_ws/README.md)
+
+# Liens vidéos
+- [lien vidéo tuto](https://drive.google.com/file/d/1eBB9-hhdBYfWyYRdyZxVa7c_rNDUIWgx/view?usp=share_link)
+- [lien vidéo démo]()
