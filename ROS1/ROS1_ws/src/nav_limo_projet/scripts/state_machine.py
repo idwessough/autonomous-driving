@@ -21,6 +21,9 @@ class LimoEtat:
         self.x = 0.15
         self.z = 0
         self.Twist = Twist()
+        # Var state machine
+        self.Action = None
+        self.flag_Action = None
         # init subscriber/publisher
         self.twist_sub = rospy.Subscriber('/limo_twist', Twist , self.callback_twist)
         self.action_sub = rospy.Subscriber('/limo_action', String, self.callback_action)
@@ -28,9 +31,7 @@ class LimoEtat:
         # Tf buffer 
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
-        # Var state machine
-        self.Action = None
-        self.flag_Action = None
+        
 
     def callback_twist(self, data):
         try:
@@ -46,6 +47,7 @@ class LimoEtat:
     def callback_action(self, data):
         # Récupération de l'action
         self.Action = data.data
+        rospy.loginfo(self.Action)
         if self.Action == "STOP":
             self.flag_Action = 1 #Stop
         elif self.Action == "RALENTIR":
@@ -60,11 +62,12 @@ class LimoEtat:
 
     # State Machine
     def state_machine(self):
+        rospy.loginfo(self.flag_Action)
         if self.flag_Action == 1: #Stop
             msg = Twist()
             while (1):
                 try:
-                    trans = self.tfBuffer.lookup_transform('STOP', 'base_link', rospy.Time(0))
+                    trans = self.tfBuffer.lookup_transform('STOP', 'base_link', rospy.Time(0), rospy.Duration(1.0))
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                     pass
                 if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
