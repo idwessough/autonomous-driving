@@ -32,7 +32,7 @@ class LimoEtat:
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         
-
+    # Callback twist, called by the line_follower and publish continuously to move limo forward via /cmd_vel topic
     def callback_twist(self, data):
         try:
             self.z = data.angular.z
@@ -45,6 +45,7 @@ class LimoEtat:
             rospy.logerr(e)
             rospy.logerr("twist_callback Error, skipped frame!")
     
+    # callback Action, called after sign/person detected to act accordingly depending on situation
     def callback_action(self, data):
         # Récupération de l'action
         Action = data.data
@@ -64,10 +65,10 @@ class LimoEtat:
         elif Action == "GREENLIGHT":
             self.flag_Action = 7 #Feu vert
         elif Action == "PRIORITY":
-            self.flag_Action = 8 #Feu vert
+            self.flag_Action = 8 #Route prioritaire
         self.state_machine()
 
-    # State Machine
+    # State Machine, 
     def state_machine(self):
         rospy.loginfo(self.flag_Action)
         if self.flag_Action == 1: #Stop
@@ -154,11 +155,12 @@ class LimoEtat:
                     rospy.sleep(5)
                     self.ActionEnCours = 0
                     break
-        elif self.flag_Action == 6: #Stop
+
+        elif self.flag_Action == 6: #feu rouge
             msg = Twist()
             while (1):
                 try:
-                    trans = self.tfBuffer.lookup_transform('STOP', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+                    trans = self.tfBuffer.lookup_transform('REDLIGHT', 'base_link', rospy.Time(0), rospy.Duration(1.0))
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                     pass
                 seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
@@ -168,8 +170,21 @@ class LimoEtat:
                     msg.linear.x = 0
                     self.ActionEnCours = 1
                     self.cmd_vel_pub.publish(msg)
-                    rospy.sleep(3)
+                    while(self.flag_Action != 7):
+                        pass
                     self.ActionEnCours = 0
+                    break
+
+        elif self.flag_Action == 8: #Route prioritaire
+            while (1):
+                try:
+                    trans = self.tfBuffer.lookup_transform('PRIORITY', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                    pass
+                seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
+                rospy.loginfo(seuil)
+                if( seuil < 1):
+                    self.x = 0.18
                     break
 
     def turn_right(self, timer):
