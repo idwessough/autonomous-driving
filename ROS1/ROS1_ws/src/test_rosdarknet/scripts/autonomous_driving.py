@@ -135,7 +135,7 @@ class sign_identification:
         # transpose msg from /camera_depth to /odom frame
         transform = self.tfBuffer.lookup_transform('odom', msg.header.frame_id, rospy.Time(0), rospy.Duration(1.0))
         #pb quaternion vs euler a check
-        pose_transformed = tf2_geometry_msgs.do_transform_pose(msg, transform)
+        pose_transformed = tf2_geometry_msgs.do_transform_pose_stamped(msg, transform)
 
         # Create new sign tf in respect to odom
         sign_tf2_broadcaster.handle_sign_pose(pose_transformed, "odom", action_todo)
