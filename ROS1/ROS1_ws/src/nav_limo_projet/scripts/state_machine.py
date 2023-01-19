@@ -22,7 +22,6 @@ class LimoEtat:
         self.z = 0
         self.Twist = Twist()
         # Var state machine
-        self.Action = None
         self.flag_Action = None
         # init subscriber/publisher
         self.twist_sub = rospy.Subscriber('/limo_twist', Twist , self.callback_twist)
@@ -46,17 +45,17 @@ class LimoEtat:
     
     def callback_action(self, data):
         # Récupération de l'action
-        self.Action = data.data
-        rospy.loginfo(self.Action)
-        if self.Action == "STOP":
+        Action = data.data
+        rospy.loginfo(Action)
+        if Action == "STOP":
             self.flag_Action = 1 #Stop
-        elif self.Action == "RALENTIR":
+        elif Action == "RALENTIR":
             self.flag_Action = 2 #Ralentir
-        elif self.Action == "VIRAGEDROITE":
+        elif Action == "VIRAGEDROITE":
             self.flag_Action = 3 #VirageDroite
-        elif self.Action == "PASSAGEPIETON":
+        elif Action == "PASSAGEPIETON":
             self.flag_Action = 4 #PassagePieton
-        elif self.Action == "PIETON":
+        elif Action == "PIETON":
             self.flag_Action = 5 #Pieton
         self.state_machine()
 
@@ -66,6 +65,7 @@ class LimoEtat:
         if self.flag_Action == 1: #Stop
             msg = Twist()
             while (1):
+                self.flag_Action = None
                 try:
                     trans = self.tfBuffer.lookup_transform('STOP', 'base_link', rospy.Time(0), rospy.Duration(1.0))
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
@@ -75,8 +75,7 @@ class LimoEtat:
                     msg.linear.x = 0
                     self.x = 0
                     self.cmd_vel_pub.publish(msg)
-                    self.flag_Action = None
-                    ((self.rate)*10).sleep()
+                    rospy.sleep(5)
                     self.x = 0.15
                     break
 
@@ -84,7 +83,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('RALENTIR', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('RALENTIR', 'base_link', rospy.Time(0), rospy.Duration(1.0)
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
@@ -98,7 +97,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('VIRAGEDROITE', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('VIRAGEDROITE', 'base_link', rospy.Time(0), rospy.Duration(1.0)
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 5):
@@ -125,7 +124,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('PASSAGEPIETON', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('PASSAGEPIETON', 'base_link', rospy.Time(0), rospy.Duration(1.0)
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
@@ -142,7 +141,7 @@ class LimoEtat:
         #     msg = Twist()
         #     while (1):
         #         try:
-        #             trans = self.tfBuffer.lookup_transform('PIETON', 'base_link', rospy.Time(0))
+        #             trans = self.tfBuffer.lookup_transform('PIETON', 'base_link', rospy.Time(0), rospy.Duration(1.0)
         #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         #             pass
         #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):

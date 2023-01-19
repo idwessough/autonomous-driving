@@ -166,7 +166,7 @@ class sign_identification:
         X = abs(nearest_distance * np.sin(object_angle))
         Y = abs(nearest_distance * np.cos(object_angle))
         print("X = {X} mm, Y = {Y} mm".format(X=X, Y=Y))
-        return X, Y
+        return X/1000, Y/1000
 
     def run(self):
             while not rospy.is_shutdown():
