@@ -110,7 +110,7 @@ class sign_identification:
                     action_todo = "OBJECT PAS ENCORE PRIS EN CHARGE" 
                 
                 # compute coordinates of point
-                X, Y = self.compute_distance(nearest_distance)  
+                X, Y = self.compute_distance(nearest_distance)
 
                 # Create new sign tf in odom
                 self.Create_tf(X, Y, action_todo)
