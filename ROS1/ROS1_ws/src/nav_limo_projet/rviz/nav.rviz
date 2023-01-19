@@ -96,7 +96,7 @@ Visualization Manager:
       Length: 1
       Name: Axes
       Radius: 0.10000000149011612
-      Reference Frame: <Fixed Frame>
+      Reference Frame: STOP
       Value: true
   Enabled: true
   Global Options:
@@ -126,16 +126,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 50.90657043457031
+      Distance: 9.661591529846191
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 4.934047698974609
-        Y: -4.873105525970459
-        Z: -0.04309342801570892
+        X: -0.1966860443353653
+        Y: -0.13014015555381775
+        Z: 0.23110011219978333
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
