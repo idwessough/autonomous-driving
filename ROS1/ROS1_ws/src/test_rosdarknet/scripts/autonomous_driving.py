@@ -21,7 +21,7 @@ camera_angle = 67.9
 
 class sign_identification:
     def __init__(self):
-        print("Initializing limo_etat node")
+        print("Initializing sign_identification node")
         self.flag = 0
         self.traffic_sign = None
         # config rate 
