@@ -82,8 +82,8 @@ NVCC=/usr/local/cuda-11.8/bin/nvcc
 
 ```mermaid
 graph LR
-    T1[Sign detection] -- /limo_action --> Node(((nav_limo_projet)))
-    T2[Line follower] -- /limo_twist --> Node(((nav_limo_projet)))
+    T1((Sign detection)) -- /limo_action --> Node(((nav_limo_projet)))
+    T2((Line follower)) -- /limo_twist --> Node(((nav_limo_projet)))
 
     Node -- /cmd_vel -->D[limo base]
 ```
@@ -98,11 +98,11 @@ graph LR
     Node -- /line_follower/processed_image -->R(rviz)
 ```
 
-### Noeud Line_follower
+### Noeud Sign_detection
 
 ```mermaid
 graph LR
-    T1[darknet_ros] -- /darknet_ros/bounding_boxes --> Node(((sign_detection)))
+    T1((darknet_ros)) -- /darknet_ros/bounding_boxes --> Node(((sign_detection)))
     S1[Camera pkg] -. /camera/depth/image_raw .-> Node(((sign_detection)))
 
     Node -- /limo_action -->D((nav_limo_projet))
