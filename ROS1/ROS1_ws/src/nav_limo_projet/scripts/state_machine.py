@@ -23,6 +23,7 @@ class LimoEtat:
         self.Twist = Twist()
         # Var state machine
         self.flag_Action = None
+        self.ActionEnCours = 0
         # init subscriber/publisher
         self.twist_sub = rospy.Subscriber('/limo_twist', Twist , self.callback_twist)
         self.action_sub = rospy.Subscriber('/limo_action', String, self.callback_action)
@@ -37,7 +38,8 @@ class LimoEtat:
             self.z = data.angular.z
             self.Twist.angular.z = self.z
             self.Twist.linear.x = self.x
-            self.cmd_vel_pub.publish(self.Twist)
+            if self.ActionEnCours == 0:
+                self.cmd_vel_pub.publish(self.Twist)
         except Exception as e:
             traceback.print_exc()
             rospy.logerr(e)
@@ -49,9 +51,9 @@ class LimoEtat:
         rospy.loginfo(Action)
         if Action == "STOP":
             self.flag_Action = 1 #Stop
-        elif Action == "RALENTIR":
+        elif Action == "SLOW":
             self.flag_Action = 2 #Ralentir
-        elif Action == "VIRAGEDROITE":
+        elif Action == "RIGHT":
             self.flag_Action = 3 #VirageDroite
         elif Action == "PASSAGEPIETON":
             self.flag_Action = 4 #PassagePieton
@@ -65,94 +67,103 @@ class LimoEtat:
         if self.flag_Action == 1: #Stop
             msg = Twist()
             while (1):
-                self.flag_Action = None
                 try:
                     trans = self.tfBuffer.lookup_transform('STOP', 'base_link', rospy.Time(0), rospy.Duration(1.0))
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                     pass
-                if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
+                seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
+                rospy.loginfo(seuil)
+                if( seuil < 0.6):
                     msg.angular.z = 0
                     msg.linear.x = 0
-                    self.x = 0
+                    self.ActionEnCours = 1
                     self.cmd_vel_pub.publish(msg)
-                    rospy.sleep(5)
+                    rospy.sleep(3)
+                    self.ActionEnCours = 0
+                    break
+
+        elif self.flag_Action == 2: #Ralentir
+            while (1):
+                try:
+                    trans = self.tfBuffer.lookup_transform('SLOW', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                    pass
+                seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
+                rospy.loginfo(seuil)
+                if( seuil < 0.6):
+                    self.x = 0.07
+                    ((self.rate)*10).sleep()
                     self.x = 0.15
                     break
 
-        # elif self.flag_Action == 2: #Ralentir
-        #     msg = Twist()
-        #     while (1):
-        #         try:
-        #             trans = self.tfBuffer.lookup_transform('RALENTIR', 'base_link', rospy.Time(0), rospy.Duration(1.0)
-        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-        #             pass
-        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
-        #             self.x = 0.07
-        #             self.flag_Action = None
-        #             ((self.rate)*10).sleep()
-        #             self.x = 0.15
-        #             break
+        elif self.flag_Action == 3: #VirageDroite
+            msg = Twist()
+            while (1):
+                try:
+                    trans = self.tfBuffer.lookup_transform('RIGHT', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                    pass
+                seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
+                rospy.loginfo(seuil)
+                if( seuil < 0.6):
+                    self.ActionEnCours = 1
+                    msg.angular.z = 0.9
+                    msg.linear.x = 0.15
+                    self.cmd_vel_pub.publish(msg)
+                    self.rate.sleep()
+                    msg.angular.z = 0.8
+                    msg.linear.x = 0.15
+                    self.cmd_vel_pub.publish(msg)
+                    self.rate.sleep()
+                    msg.angular.z = 0.8
+                    msg.linear.x = 0.15
+                    self.cmd_vel_pub.publish(msg)
+                    self.rate.sleep()
+                    msg.angular.z = 0.8
+                    msg.linear.x = 0.15
+                    self.cmd_vel_pub.publish(msg)
+                    msg.angular.z = 0.8
+                    msg.linear.x = 0.15
+                    self.cmd_vel_pub.publish(msg)
+                    self.rate.sleep()
+                    self.ActionEnCours = 0
+                    break
 
-        # elif self.flag_Action == 3: #VirageDroite
-        #     msg = Twist()
-        #     while (1):
-        #         try:
-        #             trans = self.tfBuffer.lookup_transform('VIRAGEDROITE', 'base_link', rospy.Time(0), rospy.Duration(1.0)
-        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-        #             pass
-        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 5):
-        #             msg.angular.z = 0.5
-        #             msg.linear.x = 0.15
-        #             self.cmd_vel_pub.publish(msg)
-        #             self.rate.sleep()
-        #             msg.angular.z = 0.3
-        #             msg.linear.x = 0.15
-        #             self.cmd_vel_pub.publish(msg)
-        #             self.rate.sleep()
-        #             msg.angular.z = 0.1
-        #             msg.linear.x = 0.15
-        #             self.cmd_vel_pub.publish(msg)
-        #             self.rate.sleep()
-        #             msg.angular.z = 0
-        #             msg.linear.x = 0.15
-        #             self.cmd_vel_pub.publish(msg)
-        #             self.rate.sleep()
-        #             self.flag_Action = None
-        #             break
+        elif self.flag_Action == 4: #PassagePieton
+            msg = Twist()
+            while (1):
+                try:
+                    trans = self.tfBuffer.lookup_transform('PASSAGEPIETON', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                    pass
+                seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
+                rospy.loginfo(seuil)
+                if( seuil < 0.6):
+                    msg.angular.z = 0
+                    msg.linear.x = 0
+                    self.ActionEnCours = 1
+                    self.cmd_vel_pub.publish(msg)
+                    rospy.sleep(5)
+                    self.ActionEnCours = 0
+                    break
 
-        # elif self.flag_Action == 4: #PassagePieton
-        #     msg = Twist()
-        #     while (1):
-        #         try:
-        #             trans = self.tfBuffer.lookup_transform('PASSAGEPIETON', 'base_link', rospy.Time(0), rospy.Duration(1.0)
-        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-        #             pass
-        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
-        #             msg.angular.z = 0
-        #             msg.linear.x = 0
-        #             self.x = 0 
-        #             self.cmd_vel_pub.publish(msg)
-        #             self.flag_Action = None
-        #             ((self.rate)*10).sleep()
-        #             self.x = 0.15
-        #             break
-
-        # elif self.flag_Action == 5: #Pieton
-        #     msg = Twist()
-        #     while (1):
-        #         try:
-        #             trans = self.tfBuffer.lookup_transform('PIETON', 'base_link', rospy.Time(0), rospy.Duration(1.0)
-        #         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-        #             pass
-        #         if(np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2)) < 10):
-        #             msg.angular.z = 0
-        #             msg.linear.x = 0
-        #             self.x = 0  
-        #             self.cmd_vel_pub.publish(msg)
-        #             self.flag_Action = None
-        #             ((self.rate)*10).sleep()
-        #             self.x = 0.15
-        #             break
+        elif self.flag_Action == 5: #Pieton
+            msg = Twist()
+            while (1):
+                try:
+                    trans = self.tfBuffer.lookup_transform('PIETON', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                    pass
+                seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
+                rospy.loginfo(seuil)
+                if( seuil < 0.6):
+                    msg.angular.z = 0
+                    msg.linear.x = 0
+                    self.ActionEnCours = 1  
+                    self.cmd_vel_pub.publish(msg)
+                    rospy.sleep(5)
+                    self.ActionEnCours = 0
+                    break
 
     def run(self):
         while not rospy.is_shutdown():
