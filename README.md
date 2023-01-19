@@ -40,9 +40,10 @@ Le projet nécessite de maquetter une route, en collaboration avec un autre proj
     3. [x] Docker
         1. [x] Docker ROS2 PC
         2. [x] Docker ROS1 PC
-        3. [] Docker Reseau
+        3. [ ] Docker Reseau
         4. [x] Docker Limo ROS2
-        5. [] Docker Limo ROS1
+        5. [ ] Docker Limo ROS1
+        6. [ ] Launch global via docker-compose
 
 ## Technologies
 * ROS
@@ -111,20 +112,25 @@ graph LR
     TF <-- /tf --> D
 ```
 
-# Description de l'algo
+## Description algo state machine
 
 ```mermaid
 sequenceDiagram
-    participant Alice
-    participant Bob
-    Alice->John: Hello John, how are you?
-    loop Healthcheck
-        John->John: Fight against hypochondria
+    participant dabai_a3
+    participant darknet_ROS
+    participant sign_detection
+    participant nav_limo
+    participant line_follower
+    participant limo_bringup
+    dabai_a3->darknet_ROS: /camera
+    darknet_ROS-->sign_detection: /darknet_ros/bounding_boxes
+    loop sign location
+        sign_detection->sign_detection: sign location computation and tf
     end
-    Note right of John: Rational thoughts <br/>prevail...
-    John-->Alice: Great!
-    John->Bob: How about you?
-    Bob-->John: Jolly good!
+    sign_detection-->nav_limo: /limo_action
+    line_follower-->nav_limo: /limo_twist
+    
+    
 ```
 
 
