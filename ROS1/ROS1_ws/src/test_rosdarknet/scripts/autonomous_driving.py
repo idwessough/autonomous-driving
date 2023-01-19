@@ -23,7 +23,7 @@ class sign_identification:
     def __init__(self):
         print("Initializing limo_etat node")
         self.flag = 0
-        traffic_sign = None
+        self.traffic_sign = None
         # config rate 
         self.rate = rospy.Rate(rospy.get_param("/rate/sign_identification")) 
         # init subscriber/publisher
@@ -79,6 +79,13 @@ class sign_identification:
             print("Nearest object : {nearest_object.Class} at {nearest_distance} mm".format(nearest_object=nearest_object, nearest_distance=nearest_distance))
             reaction_distance = 750    
             object_class = nearest_object.Class
+            # Check if the object is the same as the previous one
+            if object_class == self.traffic_sign:
+                self.flag = 1
+            else:
+                self.flag = 0
+                self.traffic_sign = object_class
+
             # Check if distance is close enough to react
             if nearest_distance <= reaction_distance:
                 if object_class == "Stop": 
