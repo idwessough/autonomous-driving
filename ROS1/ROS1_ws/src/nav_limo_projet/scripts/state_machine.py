@@ -119,7 +119,7 @@ class LimoEtat:
                     self.timer.shutdown()
                     self.ActionEnCours = 0
                     break
-
+        # non testé
         elif self.flag_Action == 4: #PassagePieton
             msg = Twist()
             while (1):
@@ -137,7 +137,8 @@ class LimoEtat:
                     rospy.sleep(5)
                     self.ActionEnCours = 0
                     break
-
+        
+        # non testé
         elif self.flag_Action == 5: #Pieton
             msg = Twist()
             while (1):
@@ -155,7 +156,7 @@ class LimoEtat:
                     rospy.sleep(5)
                     self.ActionEnCours = 0
                     break
-
+        # non testé
         elif self.flag_Action == 6: #feu rouge
             msg = Twist()
             while (1):
@@ -174,7 +175,7 @@ class LimoEtat:
                         pass
                     self.ActionEnCours = 0
                     break
-
+        # non testé
         elif self.flag_Action == 8: #Route prioritaire
             while (1):
                 try:

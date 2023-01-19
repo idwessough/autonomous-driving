@@ -18,13 +18,13 @@ Ouvrir 3 fenetre ssh, et lancer ces 3 commandes:
 
 ### Sur PC avec carte graphique Nvidia, en local
 
-*Modifier les var ENV ROS_MASTER_URI et ROS_HOSTNAME bans ./bashrc pour correspondre avec votre systeme.*
+*Modifier les var ENV ROS_MASTER_URI et ROS_HOSTNAME dans ./bashrc pour correspondre avec votre systeme.*
 
 Ne pas oublier de source bashrc et devel/setup.bash
 
 ### Lancement ROS-darknet
 
-> 
+> roslaunch darknet_ros darknet.launch
 
 ### Apres le lancement du [docker](../Docker/README.md):
 
