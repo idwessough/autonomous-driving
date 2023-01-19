@@ -1,0 +1,16 @@
+<launch>
+    <rosparam ns="rate" file="$(find nav_limo_projet)/config/rate_config.yaml" />
+
+    <group ns="nav_limo_projet">
+        <node name="nav_limo" pkg="nav_limo_projet" type="state_machine.py" output="screen" />
+        <!-- node name="steering" pkg="line_follower" type="Ackermann_steering.py" output="screen" / -->
+    </group>
+
+    <!--  **************** TF ****************  -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="odom" args="0 0 0 0 0 0 1 /odom /base_link" />
+    <node name="odom_to_base_link" pkg="nav_limo_projet" type="baselink_tf2_broadcaster.py" respawn="false" output="screen" />
+
+    <!--  **************** Visualization ****************  -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find nav_limo_projet)/rviz/nav.rviz"/>
+
+</launch>

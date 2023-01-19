@@ -38,7 +38,10 @@ RUN apt-get install -y --no-install-recommends \
         curl \
         swig \
         software-properties-common \
-        python3-pip 
+        python3-pip \
+        python-matplotlib \
+        evince \
+        python-tk
 
 # Install XFCE and terminal
 RUN apt-get install -y --no-install-recommends \
@@ -61,6 +64,8 @@ RUN apt-get install -y --no-install-recommends \
         ros-melodic-gazebo-ros-control \
         ros-melodic-teleop-twist-keyboard \
         ros-melodic-robot-pose-ekf \
+        ros-melodic-video-stream-opencv \
+        ros-melodic-tf2-tools \
         && apt-get clean 
 
 # Install TurboVNC
@@ -82,7 +87,7 @@ RUN useradd -ms /bin/bash user && \
     adduser user sudo && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER user
-RUN mkdir -p $ROS_WS/src
+RUN mkdir -p $ROS_WS
 WORKDIR $ROS_WS
 
 # Configure X server
@@ -93,6 +98,8 @@ RUN touch ~/.Xauthority && \
 COPY start.sh /startup/start.sh
 RUN sudo chmod +x /startup/start.sh
 RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+RUN echo "export ROS_MASTER_URI=http://192.168.1.193:11311" >> ~/.bashrc
+RUN echo "export ROS_HOSTNAME=192.168.1.145" >> ~/.bashrc
 
 ENTRYPOINT [ "/startup/start.sh" ]
 CMD [ "--wait" ]
