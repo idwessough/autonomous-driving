@@ -105,7 +105,7 @@ class sign_identification:
                         action_todo = "DEFAULT"
                 
                 elif object_class == "rouge": 
-                        action_todo = "REDLIGHT"
+                    action_todo = "REDLIGHT"
                 
                 elif object_class == "vert":
                     action_todo = "GREENLIGHT"
