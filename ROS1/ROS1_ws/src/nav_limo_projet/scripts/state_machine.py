@@ -59,6 +59,12 @@ class LimoEtat:
             self.flag_Action = 4 #PassagePieton
         elif Action == "PIETON":
             self.flag_Action = 5 #Pieton
+        elif Action == "REDLIGHT":
+            self.flag_Action = 6 #Feu Rouge
+        elif Action == "GREENLIGHT":
+            self.flag_Action = 7 #Feu vert
+        elif Action == "PRIORITY":
+            self.flag_Action = 8 #Feu vert
         self.state_machine()
 
     # State Machine
@@ -92,12 +98,12 @@ class LimoEtat:
                 rospy.loginfo(seuil)
                 if( seuil < 0.6):
                     self.x = 0.07
-                    ((self.rate)*10).sleep()
+                    rospy.sleep(3)
                     self.x = 0.15
                     break
 
         elif self.flag_Action == 3: #VirageDroite
-            msg = Twist()
+            
             while (1):
                 try:
                     trans = self.tfBuffer.lookup_transform('RIGHT', 'base_link', rospy.Time(0), rospy.Duration(1.0))
@@ -107,25 +113,9 @@ class LimoEtat:
                 rospy.loginfo(seuil)
                 if( seuil < 0.6):
                     self.ActionEnCours = 1
-                    msg.angular.z = 0.9
-                    msg.linear.x = 0.15
-                    self.cmd_vel_pub.publish(msg)
-                    self.rate.sleep()
-                    msg.angular.z = 0.8
-                    msg.linear.x = 0.15
-                    self.cmd_vel_pub.publish(msg)
-                    self.rate.sleep()
-                    msg.angular.z = 0.8
-                    msg.linear.x = 0.15
-                    self.cmd_vel_pub.publish(msg)
-                    self.rate.sleep()
-                    msg.angular.z = 0.8
-                    msg.linear.x = 0.15
-                    self.cmd_vel_pub.publish(msg)
-                    msg.angular.z = 0.8
-                    msg.linear.x = 0.15
-                    self.cmd_vel_pub.publish(msg)
-                    self.rate.sleep()
+                    self.timer = rospy.Timer(rospy.Duration(1.0/100.0), self.turn_right)
+                    rospy.sleep(7)
+                    self.timer.shutdown()
                     self.ActionEnCours = 0
                     break
 
@@ -138,7 +128,7 @@ class LimoEtat:
                     pass
                 seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
                 rospy.loginfo(seuil)
-                if( seuil < 0.6):
+                if( seuil < 0.55):
                     msg.angular.z = 0
                     msg.linear.x = 0
                     self.ActionEnCours = 1
@@ -164,6 +154,30 @@ class LimoEtat:
                     rospy.sleep(5)
                     self.ActionEnCours = 0
                     break
+        elif self.flag_Action == 6: #Stop
+            msg = Twist()
+            while (1):
+                try:
+                    trans = self.tfBuffer.lookup_transform('STOP', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                    pass
+                seuil = np.sqrt(np.power(trans.transform.translation.y, 2)+np.power(trans.transform.translation.x, 2))
+                rospy.loginfo(seuil)
+                if( seuil < 1):
+                    msg.angular.z = 0
+                    msg.linear.x = 0
+                    self.ActionEnCours = 1
+                    self.cmd_vel_pub.publish(msg)
+                    rospy.sleep(3)
+                    self.ActionEnCours = 0
+                    break
+
+    def turn_right(self, timer):
+        msg = Twist()
+        msg.angular.z = -0.3
+        msg.linear.x = 0.15
+        self.cmd_vel_pub.publish(msg)
+        self.rate.sleep()
 
     def run(self):
         while not rospy.is_shutdown():
