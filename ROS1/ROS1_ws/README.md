@@ -42,7 +42,7 @@ Ne pas oublier de source bashrc et devel/setup.bash
 
 ### Lancement identification panneaux
 
-> 
+> roslaunch test_rosdarknet rosdarknet.launch
 
 
 
