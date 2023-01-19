@@ -10,7 +10,7 @@ from nav_msgs.msg import Odometry
 
 
 def handle_sign_pose(data, header_frame, sign_name,):
-    br = tf2_ros.StaticTransformBroadcaster()
+    br = tf2_ros.TransformBroadcaster()
     t = geometry_msgs.msg.TransformStamped()
 
     t.header.stamp = rospy.Time.now()
