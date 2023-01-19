@@ -133,8 +133,9 @@ class sign_identification:
 
             rospy.loginfo("Publishing action : {action_todo}".format(action_todo=action_todo))
             # publish action_todo in ros topic
-            self.limo_publisher.publish(action_todo)
-            rospy.loginfo("Published action : {action_todo}".format(action_todo=action_todo))
+            if self.flag == 0:
+                self.limo_publisher.publish(action_todo)
+                rospy.loginfo("Published action : {action_todo}".format(action_todo=action_todo))
 
 
     def Create_tf(self, X, Y, action_todo):
