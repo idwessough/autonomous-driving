@@ -83,8 +83,8 @@ NVCC=/usr/local/cuda-11.8/bin/nvcc
 
 ```mermaid
 graph LR
-    T1((Sign detection)) -- /limo_action --> Node(((nav_limo_projet)))
-    T2((Line follower)) -- /limo_twist --> Node(((nav_limo_projet)))
+    T1(Sign detection) -- /limo_action --> Node((nav_limo_projet))
+    T2(Line follower) -- /limo_twist --> Node((nav_limo_projet))
 
     Node -- /cmd_vel -->D[limo base]
 ```
@@ -93,9 +93,9 @@ graph LR
 
 ```mermaid
 graph LR
-    S1[Camera pkg] -. /camera/rgb/image_rect_color .-> Node(((line_follower)))
+    S1[Camera pkg] -. /camera/rgb/image_rect_color .-> Node((line_follower))
 
-    Node -- /limo_twist -->D((nav_limo_projet))
+    Node -- /limo_twist -->D(nav_limo_projet)
     Node -- /line_follower/processed_image -->R(rviz)
 ```
 
@@ -103,11 +103,11 @@ graph LR
 
 ```mermaid
 graph LR
-    T1((darknet_ros)) -- /darknet_ros/bounding_boxes --> Node(((sign_detection)))
-    S1[Camera pkg] -. /camera/depth/image_raw .-> Node(((sign_detection)))
+    T1(darknet_ros) -- /darknet_ros/bounding_boxes --> Node((sign_detection))
+    S1[Camera pkg] -. /camera/depth/image_raw .-> Node((sign_detection))
 
-    Node -- /limo_action -->D((nav_limo_projet))
-    Node <-- /tf -->TF(/tf_sign_to_odom_broadcaster)
+    Node -- /limo_action -->D(nav_limo_projet)
+    Node <-- /tf --> TF[[/tf_sign_to_odom_broadcaster]]
 
     TF <-- /tf --> D
 ```
@@ -129,7 +129,7 @@ sequenceDiagram
     end
     sign_detection-->nav_limo: /limo_action
     line_follower-->nav_limo: /limo_twist
-    
+
     
 ```
 
