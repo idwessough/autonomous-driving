@@ -1,7 +1,7 @@
 <launch>
     <rosparam ns="rate" file="$(find test_rosdarknet)/config/rate_config.yaml" />
 
-    <group ns="nav_limo_projet">
+    <group ns="sign_detection">
         <node name="sign_detection" pkg="test_rosdarknet" type="autonomous_driving.py" output="screen" />
     </group>
     
