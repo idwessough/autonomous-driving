@@ -84,17 +84,24 @@ Le projet nécessite de maquetter une route, en collaboration avec un autre proj
 
 
 
+# Description de l'algo
 
- 
+```mermaid
+sequenceDiagram
+    participant Alice
+    participant Bob
+    Alice->John: Hello John, how are you?
+    loop Healthcheck
+        John->John: Fight against hypochondria
+    end
+    Note right of John: Rational thoughts <br/>prevail...
+    John-->Alice: Great!
+    John->Bob: How about you?
+    Bob-->John: Jolly good!
+```
 
-graph LR
-    T1[Odometry source] -- /odom --> Node((local_planner_student))
-    T2[Laser source] -- /scan --> Node((local_planner_student))
 
-    S1[ ] -. /move_to/singleGoal .-> Node
-    S2[ ] -. /move_to/pathGoal .-> Node
-
-    Node -- /cmd_vel_mux/input/navi -->D[base controller]
+ # Description de l'algo
 
 
 sequenceDiagram
@@ -108,3 +115,30 @@ sequenceDiagram
     John-->Alice: Great!
     John->Bob: How about you?
     Bob-->John: Jolly good!
+
+
+
+
+graph LR
+    T1[Odometry source] -- /odom --> Node((local_planner_student))
+    T2[Laser source] -- /scan --> Node((local_planner_student))
+
+    S1[ ] -. /move_to/singleGoal .-> Node
+    S2[ ] -. /move_to/pathGoal .-> Node
+
+    Node -- /cmd_vel_mux/input/navi -->D[base controller]
+
+```mermaid
+sequenceDiagram
+    participant Alice
+    participant Bob
+    Alice->John: Hello John, how are you?
+    loop Healthcheck
+        John->John: Fight against hypochondria
+    end
+    Note right of John: Rational thoughts <br/>prevail...
+    John-->Alice: Great!
+    John->Bob: How about you?
+    Bob-->John: Jolly good!
+```
+
