@@ -198,6 +198,15 @@ sequenceDiagram
 - Package ROS-darknet [lien](https://github.com/leggedrobotics/darknet_ros)
 - Package Limo ROS1 [lien](https://github.com/agilexrobotics/limo_ros)
 - Package Limo ROS2 [lien](https://github.com/agilexrobotics/limo_ros2)
+- Doc du limo [lien](https://github.com/agilexrobotics/limo-doc)
+
+Darknet ROS fonctionnel sur triton 1 et sur triton 9 (dossier ROS1_ws sur bureau)
+Problème de publish de topic sur le triton 1 observé jeudi matin. Pas réussi a la régler.
+
+Sur le limo utilisé (etiquette limo nav autonome):
+- conf docker modifié, sauvegarde des images et conteneur déplacé sur la carte SD
+- Docker ROS2 présent sur carte SD également, possiblité d'utiliser le script bash présent ds le workspace pour le lancer. 
+- Le script de lancement ROS2 docker réalisé par agilex, mais corrigée par notre groupe pour permettre son fonctionnement. Explication supplémentaire dispo sur le git limo_ros2 de agilex.
 
 # Procédure de mise en route
 
