@@ -1,6 +1,6 @@
 # Lancement du robot avec suivi de ligne:
 
-### demarrage robot (appuie long sur bouton jusqu'au signal sonore)
+## demarrage robot (appuie long sur bouton jusqu'au signal sonore)
 
 ### Se connecter au robot en ssh
 
@@ -12,11 +12,13 @@ mdp:
 Ouvrir 3 fenetre ssh, et lancer ces 3 commandes:
 > roscore
 
+Launch noeud camera
 > roslaunch astra_camera dabai_u3.launch
 
+Launch limo_base, avec le LIDAR
 > roslaunch limo_bringup limo_start.launch
 
-### Sur PC avec carte graphique Nvidia, en local
+## Sur PC avec carte graphique Nvidia, en local
 
 *Modifier les var ENV ROS_MASTER_URI et ROS_HOSTNAME dans ./bashrc pour correspondre avec votre systeme.*
 
@@ -26,7 +28,7 @@ Ne pas oublier de source bashrc et devel/setup.bash
 
 > roslaunch darknet_ros darknet.launch
 
-### Apres le lancement du [docker](../Docker/README.md):
+## Apres le lancement du [docker](../Docker/README.md):
 
 > cd ROS1_ws
 

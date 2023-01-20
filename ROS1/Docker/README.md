@@ -20,5 +20,6 @@ Dans un autre terminal:
 mdp:
 >password
 
-
+Si probleme pour relancer le docker, supprimer l'image, puis relancer:
+> docker rm ros-melodic
 
