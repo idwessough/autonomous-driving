@@ -3,7 +3,27 @@
 auteurs : Idwes Sough, Arthur Saunier, Younes Abouchi
 
 ## Objectifs
-Faire naviguer des véhicules (Turtlebot + [Limo](https://global.agilex.ai/products/limo)) dans un environnement urbain (route, feu, piétons, signalisation, ...) en respectant sa réglementation (laisser) 
+Faire naviguer des véhicules (Turtlebot + [Limo](https://global.agilex.ai/products/limo)) dans un environnement urbain (route, feu, piétons, signalisation, ...) en respectant sa réglementation (laisser)  
+
+## Introduction
+Le projet consiste à faire naviguer un véhicule dans un environnement urbain. Le véhicule devra respecter les règles de circulation et les règles de priorité. Il devra également être capable de détecter les panneaux de signalisation et les feux tricolores.[copil]
+
+Les moyens mis en place pour atteindre cet objectif sont les suivants :
+- Un véhicule mobile équipé [Limo](https://global.agilex.ai/products/limo) (voir [ici](https://global.agilex.ai/products/limo) pour plus d'informations)
+- Un ordinateur de DeepLearning (CUDA GPU) pour l'entraînement du réseau de neurones ainsi que ces inférences durant toute la durée de la navigation du robot autonome.
+  
+Le Limo est compatible avec le grand framework de robotique ROS (Robot Operating System) et sa montée de version ROS2, l'objectif est de piloter ce robot Limo de la marque Agilex au sein d'une map de type Smart City comme illustré ci-dessous :
+![alt text](image/AgilexLimo/limo-city.webp "Agilex")
+
+Le Limo est compatible ROS2 avec les différentes caractéristiques hardware suivantes :
+![alt text](image/ros_feat.webp "Agilex")
+lower size of image
+
+![alt text](image/ROS-2_logo.webp "ROS2")
+![alt text](image/AgilexLimo/sensors.png "Agilex")![alt text](image/AgilexLimo/cameras.png "Agilex")
+![alt text](image/AgilexLimo/jetson.png "Agilex")
+![alt text](image/AgilexLimo/wifi.png "Agilex")
+![alt text](image/AgilexLimo/screen.png "Agilex")
 
 ## Fonctionnalités spécifique au projet :
 - Fonctionnelles :
@@ -53,27 +73,47 @@ Le projet nécessite de maquetter une route, en collaboration avec un autre proj
 
 # SPRINT 1
 
+Labélisation des images pour entraînement du réseau de neurones YOLO/Darknet avec Dataset personnalisé (panneaux, personnages, feux tricolores, objets sensibles) liés à la Smart City du use case.
+
+Choix de Yolo/Darknet car c'est un réseau de neurones très performant et rapide pour la détection d'objets étant également open source et implémentable dans le framework ROS. Les ajustements de paramètres du réseau de neurones sont réalisés sur un PC avec GPU CUDA (RTX 2070 Super) et les inférences sont réalisées sur un Limo avec GPU CUDA (Jetson Nano) dans un premier temps.
+
+## Installation de Darknet
+
+### Installation de CUDA
+
+```bash
+sudo apt-get install nvidia-cuda-toolkit
+```
+(Bien vérifier la disponibilité et la compatibilité de version CUDA avec votre GPU https://developer.nvidia.com/cuda-downloads)
+
+
 ## Demo avec camera pc
 
 ./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights
 
 ## On Limo:
-- lancer roscore
+- Lancer ``roscore``
 - Lancer LIDAR
-roslaunch limo_bringup limo_start.launch pub_odom_tf:=false
+``roslaunch limo_bringup limo_start.launch pub_odom_tf:=false``
 - Lancer caméra
-roslaunch astra_camera dabai_u3.launch
+``roslaunch astra_camera dabai_u3.launch``
 - lancer nav (après avoir mapper l'environnement)
-roslaunch limo_bringup limo_navigation_ackerman.launch
+``roslaunch limo_bringup limo_navigation_ackerman.launch``
 
-Lancer ROSCore de Limo
-rosrun web_video_server web_video_server
+- Lancer ROSCore de Limo
+``rosrun web_video_server web_video_server``
 
-topic
-/camera/rgb/image_raw
-modifier CUDA version dans MakeFile 
-NVCC=/usr/local/cuda-11.8/bin/nvcc
-./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights http://localhost:8080/stream?topic=/camera/rgb/image_raw
+- Vérifier la présence de Topic suivant avec : 
+
+``rostopic list``
+`` /camera/rgb/image_raw``
+``/camera/depth/image_raw``
+``rostopic echo /camera/depth/camera_info`` (pour vérifier la bonne récéption des données de profondeur)
+
+- modifier CUDA version dans MakeFile 
+``NVCC=/usr/local/cuda-11.8/bin/nvcc``
+
+./darknet detector demo YOLOV3_YCB_tiny/ycb.data YOLOV3_YCB_tiny/yolov3-tiny-traffic.cfg YOLOV3_YCB_tiny/backup/yolov3-tiny-traffic.weights http://localhost:8080/stream?topic=/camera/rgb/image_raw``
 
 # SPRINT 2
 
@@ -125,10 +165,10 @@ sequenceDiagram
     dabai_a3->darknet_ROS: /camera
     darknet_ROS-->sign_detection: /darknet_ros/bounding_boxes
     loop sign location
-        sign_detection->sign_detection: sign location computation and tf
+        sign_detection->sign_detection: sign location computation and tf broadcast
     end
     sign_detection-->nav_limo: /limo_action
-    line_follower-->nav_limo: /limo_twist
+    line_follower-->nav_limo: /limo_twist 
 
     
 ```
@@ -136,22 +176,10 @@ sequenceDiagram
 
  # Description de l'algo
 
-
-sequenceDiagram
-    participant Alice
-    participant Bob
-    Alice->John: Hello John, how are you?
-    loop Healthcheck
-        John->John: Fight against hypochondria
-    end
-    Note right of John: Rational thoughts <br/>prevail...
-    John-->Alice: Great!
-    John->Bob: How about you?
-    Bob-->John: Jolly good!
+ 
 
 
-
-
+```mermaid
 graph LR
     T1[Odometry source] -- /odom --> Node((local_planner_student))
     T2[Laser source] -- /scan --> Node((local_planner_student))
@@ -160,20 +188,8 @@ graph LR
     S2[ ] -. /move_to/pathGoal .-> Node
 
     Node -- /cmd_vel_mux/input/navi -->D[base controller]
+```	
 
-```mermaid
-sequenceDiagram
-    participant Alice
-    participant Bob
-    Alice->John: Hello John, how are you?
-    loop Healthcheck
-        John->John: Fight against hypochondria
-    end
-    Note right of John: Rational thoughts <br/>prevail...
-    John-->Alice: Great!
-    John->Bob: How about you?
-    Bob-->John: Jolly good!
-```
 # Liste des dépendances et pré-requis
 
 - Package ROS-darknet [lien](https://github.com/leggedrobotics/darknet_ros)
