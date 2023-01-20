@@ -152,7 +152,7 @@ graph LR
     TF <-- /tf --> D
 ```
 
-## Description algo state machine
+## Description fonctionnement complet 
 
 ```mermaid
 sequenceDiagram
@@ -168,27 +168,30 @@ sequenceDiagram
         sign_detection->sign_detection: sign location computation and tf broadcast
     end
     sign_detection-->nav_limo: /limo_action
-    line_follower-->nav_limo: /limo_twist 
-
-    
+    line_follower-->nav_limo: /limo_twist
+    loop state machine
+        nav_limo->nav_limo: Check action tag and act accordingly
+    end
+    nav_limo-->limo_bringup: /cmd_vel
 ```
 
-
- # Description de l'algo
-
- 
-
+## Description fonctionnement state machine, reception /action
 
 ```mermaid
-graph LR
-    T1[Odometry source] -- /odom --> Node((local_planner_student))
-    T2[Laser source] -- /scan --> Node((local_planner_student))
-
-    S1[ ] -. /move_to/singleGoal .-> Node
-    S2[ ] -. /move_to/pathGoal .-> Node
-
-    Node -- /cmd_vel_mux/input/navi -->D[base controller]
-```	
+sequenceDiagram
+    participant sign_detection
+    participant nav_limo
+    participant limo_bringup
+    critical State Machine
+        sign_detection-->>nav_limo: /limo_action
+    option Action = STOP
+        nav_limo->nav_limo: Check tf /STOP in /baseLink t get distance
+    option Distance euclidienne < 0.6
+        nav_limo-->>limo_bringup: /cmd_vel x.linear =0
+    option Timeout 3sec
+        nav_limo-->>limo_bringup: /cmd_vel x.linear =0.15
+    end
+```
 
 # Liste des dépendances et pré-requis
 
