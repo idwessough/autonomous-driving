@@ -4,20 +4,33 @@
 
 ### Se connecter au robot en ssh
 
-> ssh agilex@ip
+```bash
+ssh agilex@ip
+```
 
 mdp:
-> agx
+
+```bash
+agx
+```
 
 Ouvrir 3 fenetre ssh, et lancer ces 3 commandes:
-> roscore
+
+```bash
+roscore
+```
 
 Launch noeud camera
-> roslaunch astra_camera dabai_u3.launch
+
+```bash
+roslaunch astra_camera dabai_u3.launch
+```
 
 Launch limo_base, avec le LIDAR
-> roslaunch limo_bringup limo_start.launch
 
+```bash
+roslaunch limo_bringup limo_start.launch
+```
 ## Sur PC avec carte graphique Nvidia, en local
 
 *Modifier les var ENV ROS_MASTER_URI et ROS_HOSTNAME dans ./bashrc pour correspondre avec votre systeme.*
@@ -26,26 +39,34 @@ Ne pas oublier de source bashrc et devel/setup.bash
 
 ### Lancement ROS-darknet
 
-> roslaunch darknet_ros darknet.launch
+```bash
+roslaunch darknet_ros darknet.launch
+```
 
 ## Apres le lancement du [docker](../Docker/README.md):
 
-> cd ROS1_ws
-
-> source devel/setup.bash
+```bash
+cd ROS1_ws
+source devel/setup.bash
+```
 
 ### Lancement line_follower:
 
-> roslaunch line_follower line_follower.launch
+```bash
+roslaunch line_follower line_follower.launch
+```
 
 ### Lancement machine a etat:
 
-> roslaunch nav_limo_projet nav.launch
+```bash
+roslaunch nav_limo_projet nav.launch
+```
 
 ### Lancement identification panneaux
 
-> roslaunch test_rosdarknet rosdarknet.launch
-
+```bash
+roslaunch test_rosdarknet rosdarknet.launch
+```
 
 
 
